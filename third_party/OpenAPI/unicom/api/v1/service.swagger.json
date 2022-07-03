@@ -1,0 +1,239 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "unicom/api/v1/service.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Unicom"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/unicom/v1/send-async": {
+      "post": {
+        "operationId": "Unicom_SendAsync",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SendResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SendAsyncRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Unicom"
+        ]
+      }
+    },
+    "/unicom/v1/send-sync": {
+      "post": {
+        "operationId": "Unicom_SendSync",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SendResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SendSyncRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Unicom"
+        ]
+      }
+    },
+    "/unicom/v1/status/{id}": {
+      "get": {
+        "operationId": "Unicom_GetStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Unicom"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Document": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "v1GetStatusResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ResponseChannel": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "$ref": "#/definitions/v1ResponseSchema"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ResponseSchema": {
+      "type": "string",
+      "enum": [
+        "HTTP",
+        "SQS",
+        "EVENT_BRIDGE"
+      ],
+      "default": "HTTP"
+    },
+    "v1SendAsyncRequest": {
+      "type": "object",
+      "properties": {
+        "toAddress": {
+          "type": "string"
+        },
+        "fromAddress": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Document"
+          }
+        },
+        "responseChannel": {
+          "$ref": "#/definitions/v1ResponseChannel"
+        },
+        "sendAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "any point in time in the future.\nif time has past, will send immediately."
+        }
+      }
+    },
+    "v1SendResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1SendSyncRequest": {
+      "type": "object",
+      "properties": {
+        "toAddress": {
+          "type": "string"
+        },
+        "fromAddress": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

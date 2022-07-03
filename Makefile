@@ -22,12 +22,6 @@ build-linux:
 download:
 	go mod download
 
-docker-netrc:
-	@touch ~/.netrc
-	@echo "machine gitlab.com" > ~/.netrc
-	@echo login gitlab-ci-token >> ~/.netrc
-	@echo password ${CI_JOB_TOKEN} >> ~/.netrc
-
 clean:
 	rm main
 

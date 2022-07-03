@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package unicom.api.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+message SendAsyncRequest {
+    string to_address = 1;
+    string from_address = 2;
+    string subject = 4;
+    string html = 5;
+    repeated Document attachments = 8;
+    ResponseChannel response_channel = 7;
+    // any point in time in the future.
+    // if time has past, will send immediately.
+    google.protobuf.Timestamp send_at = 6;
+}
+
+message Document {
+    string name = 1;
+    bytes data = 2;
+}
+
+enum ResponseSchema {
+    HTTP = 0;
+    SQS = 1;
+    EVENT_BRIDGE = 2;
+  }
+
+message ResponseChannel {
+    ResponseSchema schema = 1;
+    string url = 2;
+}
+
+message SendSyncRequest {
+    string to_address = 1;
+    string from_address = 2;
+    string html = 3;
+    string subject = 4;
+    // repeated Document attachments = 4;
+}
+
+message SendResponse {
+    string id = 1;
+}
+
+message GetStatusRequest {
+    string id = 1;
+}
+
+message GetStatusResponse {
+    string status = 1;
+}
+
+service Unicom {
+    rpc SendSync(SendSyncRequest) returns (SendResponse)  {
+        option (google.api.http) = {
+            post: "/unicom/v1/send-sync"
+            body: "*"
+        };
+    };
+    rpc SendAsync(SendAsyncRequest) returns (SendResponse)  {
+        option (google.api.http) = {
+            post: "/unicom/v1/send-async"
+            body: "*"
+        };
+    };
+    rpc GetStatus(GetStatusRequest) returns (GetStatusResponse)  {
+        option (google.api.http) = {
+            get: "/unicom/v1/status/{id}"
+        };
+    };
+}

@@ -20,9 +20,10 @@ type UnicomActivities struct {
 	sqsService   sqsService
 }
 
-func NewActivities(es emailService) *UnicomActivities {
+func NewActivities(es emailService, sqs sqsService) *UnicomActivities {
 	return &UnicomActivities{
 		emailService: es,
+		sqsService:   sqs,
 	}
 }
 

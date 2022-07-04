@@ -4,12 +4,17 @@ import (
 	"context"
 	"encoding/json"
 
+	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	aws_sqs "github.com/aws/aws-sdk-go-v2/service/sqs"
 )
 
+type sqsClient interface {
+	SendMessage(ctx context.Context, params *aws_sqs.SendMessageInput, optFns ...func(*aws_sqs.Options)) (*aws_sqs.SendMessageOutput, error)
+}
+
 type Service struct {
-	sqsClient *aws_sqs.Client
+	sqsClient sqsClient
 }
 
 type Request struct {
@@ -19,20 +24,14 @@ type Request struct {
 	ErrorMessage *string
 }
 
-func NewService(cfg aws.Config) *Service {
+func NewService(client sqsClient) *Service {
 	return &Service{
-		sqsClient: aws_sqs.NewFromConfig(cfg),
+		sqsClient: client,
 	}
 }
 
-type message struct {
-	WorkflowId   string  `json:"name:workflowId"`
-	Status       string  `json:"name:status"`
-	ErrorMessage *string `json:"name:errorMessage"`
-}
-
 func (s *Service) Send(ctx context.Context, req Request) (*string, error) {
-	data, err := json.Marshal(message{
+	data, err := json.Marshal(pb.ResponseEvent{
 		WorkflowId:   req.WorkflowId,
 		Status:       req.Status,
 		ErrorMessage: req.ErrorMessage,
@@ -42,8 +41,9 @@ func (s *Service) Send(ctx context.Context, req Request) (*string, error) {
 	}
 
 	response, err := s.sqsClient.SendMessage(ctx, &aws_sqs.SendMessageInput{
-		QueueUrl:    aws.String(req.Queue),
-		MessageBody: aws.String(string(data)),
+		QueueUrl:               aws.String(req.Queue),
+		MessageBody:            aws.String(string(data)),
+		MessageDeduplicationId: aws.String(req.WorkflowId),
 	})
 	if err != nil {
 		return nil, err

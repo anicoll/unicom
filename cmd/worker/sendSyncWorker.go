@@ -8,6 +8,7 @@ import (
 	"github.com/anicoll/unicom/internal/email"
 	"github.com/anicoll/unicom/internal/workflows"
 	"github.com/aws/aws-sdk-go-v2/config"
+	ses "github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/uber-go/tally/v4/prometheus"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/client"
@@ -26,13 +27,11 @@ func SendSyncWorker(temporalClient client.Client, es *email.Service) error {
 
 	registerOptions := workflow.RegisterOptions{}
 
-	activities := workflows.NewActivities(es)
+	activities := workflows.NewActivities(es, nil)
 
 	w.RegisterWorkflowWithOptions(workflows.SendSyncWorkflow, registerOptions)
 
 	w.RegisterActivityWithOptions(activities.SendEmail, activity.RegisterOptions{})
-	w.RegisterActivityWithOptions(activities.NotifyWebhook, activity.RegisterOptions{})
-	w.RegisterActivityWithOptions(activities.NotifySqs, activity.RegisterOptions{})
 
 	return w.Run(worker.InterruptCh())
 }
@@ -53,7 +52,9 @@ func sendSyncWorkerAction(args workerArgs) error {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
 
-	emailService := email.NewService(awsConfig)
+	// TODO: add status Checkers
+	sesClient := ses.NewFromConfig(awsConfig)
+	emailService := email.NewService(sesClient)
 
 	temporalClient, err := client.Dial(client.Options{
 		HostPort:  args.temporalAddress,

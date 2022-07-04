@@ -12,7 +12,8 @@
             "program": "${workspaceFolder}/cmd/main.go",
             "envFile": "${workspaceFolder}/.env",
             "args": [
-                "server"
+                // "server"
+                "send-async-worker"
             ]
         }
     ]

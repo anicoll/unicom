@@ -139,7 +139,7 @@
         }
       }
     },
-    "v1Document": {
+    "v1Attachment": {
       "type": "object",
       "properties": {
         "name": {
@@ -194,19 +194,22 @@
         "html": {
           "type": "string"
         },
-        "attachments": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Document"
-          }
-        },
-        "responseChannel": {
-          "$ref": "#/definitions/v1ResponseChannel"
-        },
         "sendAt": {
           "type": "string",
           "format": "date-time",
           "description": "any point in time in the future.\nif time has past, will send immediately."
+        },
+        "responseChannels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1ResponseChannel"
+          }
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Attachment"
+          }
         }
       }
     },
@@ -232,6 +235,12 @@
         },
         "subject": {
           "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Attachment"
+          }
         }
       }
     }

@@ -4,13 +4,14 @@ import (
 	"time"
 
 	"github.com/anicoll/unicom/internal/email"
+	"github.com/anicoll/unicom/internal/sqs"
 	"go.temporal.io/sdk/workflow"
 )
 
 type Request struct {
-	EmailRequest    email.SendEmailRequest
-	ResponseRequest ResponseRequest
-	SleepDuration   time.Duration
+	EmailRequest     *email.Request
+	ResponseRequests []*ResponseRequest
+	SleepDuration    time.Duration
 }
 
 type ResponseType string
@@ -78,9 +79,12 @@ func SendAsyncWorkflow(ctx workflow.Context, request Request) error {
 		return err
 	}
 
+	var messageId *string
+
 	err = workflow.ExecuteActivity(ctx,
 		activities.SendEmail,
-	).Get(ctx, nil)
+		request.EmailRequest,
+	).Get(ctx, &messageId)
 	if err != nil {
 		logger.Error("Activity failed.", "activities.SendEmail", "Error", err)
 		currentState.Status = WorkflowError
@@ -89,15 +93,31 @@ func SendAsyncWorkflow(ctx workflow.Context, request Request) error {
 	}
 	currentState.Status = WorkflowActivityComplete
 
-	switch request.ResponseRequest.Type {
-	case SqsResponseType:
-		workflow.ExecuteActivity(ctx,
-			activities.NotifySqs,
-		).Get(ctx, nil)
-	case WebhookResponseType:
-		workflow.ExecuteActivity(ctx,
-			activities.NotifyWebhook,
-		).Get(ctx, nil)
+	info := workflow.GetInfo(ctx)
+
+	for _, responseRequest := range request.ResponseRequests {
+		switch responseRequest.Type {
+		case SqsResponseType:
+			var sqsMessageId *string
+			err = workflow.ExecuteActivity(ctx,
+				activities.NotifySqs,
+				sqs.Request{
+					Queue:      responseRequest.Url,
+					WorkflowId: info.WorkflowExecution.ID,
+					Status:     string(currentState.Status),
+				},
+			).Get(ctx, &sqsMessageId)
+			if err != nil {
+				return err
+			}
+		case WebhookResponseType:
+			err = workflow.ExecuteActivity(ctx,
+				activities.NotifyWebhook,
+			).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	currentState.Status = WorkflowComplete

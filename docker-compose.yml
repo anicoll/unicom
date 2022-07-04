@@ -1,0 +1,20 @@
+version: "3.5"
+services:
+  async-worker:
+    container_name: async-worker
+    environment:
+      TEMPORAL_SERVER: localhost:7233
+      AWS_REGION: eu-west-2
+    command: send-async-worker
+    build: ./
+    network_mode: host
+    image: unicom:latest
+  sync-worker:
+    container_name: sync-worker
+    environment:
+      TEMPORAL_SERVER: localhost:7233
+      AWS_REGION: eu-west-2
+    command: send-sync-worker
+    build: ./
+    network_mode: host
+    image: unicom:latest

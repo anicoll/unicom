@@ -3,21 +3,17 @@ package email
 import (
 	"bytes"
 	"context"
-	"time"
-
-	b64 "encoding/base64"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/ses"
-	"github.com/aws/aws-sdk-go-v2/service/ses/types"
-	"gopkg.in/gomail.v2"
+	ses "github.com/aws/aws-sdk-go-v2/service/sesv2"
+	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
 )
 
 type Service struct {
 	sesClient *ses.Client
 }
 
-type SendEmailRequest struct {
+type Request struct {
 	FromAddress      string
 	Subject          string
 	ReplyToAddresses []string
@@ -39,32 +35,27 @@ func NewService(cfg aws.Config) *Service {
 	}
 }
 
-func (es *Service) SendEmail(ctx context.Context, args SendEmailRequest) (*string, error) {
-	msg := gomail.NewMessage()
-
-	msg.SetAddressHeader("From", args.FromAddress, "")
+func (es *Service) Send(ctx context.Context, args Request) (*string, error) {
+	msg := NewMessage()
+	msg.SetHeader("From", args.FromAddress)
 	msg.SetHeader("To", args.ToAddresses...)
 	msg.SetHeader("Cc", args.CcAddresses...)
 	msg.SetHeader("Bcc", args.BccAddresses...)
-	msg.SetDateHeader("x-Date", time.Now())
 	msg.SetHeader("Subject", args.Subject)
 	msg.SetBody("text/html", args.HtmlBody)
 
 	for _, attachment := range args.Attachments {
-		msg.Attach(attachment.Name)
+		msg.Attach(attachment.Name, attachment.Data)
 	}
-	buf := new(bytes.Buffer)
 
-	_, err := msg.WriteTo(buf)
-	if err != nil {
-		return nil, err
-	}
-	rawData := make([]byte, buf.Len(), 0)
-	b64.RawStdEncoding.Encode(buf.Bytes(), rawData)
+	var emailRaw bytes.Buffer
+	msg.WriteTo(&emailRaw)
 
-	output, err := es.sesClient.SendRawEmail(ctx, &ses.SendRawEmailInput{
-		RawMessage: &types.RawMessage{
-			Data: rawData,
+	output, err := es.sesClient.SendEmail(ctx, &ses.SendEmailInput{
+		Content: &types.EmailContent{
+			Raw: &types.RawMessage{
+				Data: emailRaw.Bytes(),
+			},
 		},
 	})
 	if err != nil {

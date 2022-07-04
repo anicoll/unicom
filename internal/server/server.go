@@ -5,7 +5,6 @@ import (
 	"time"
 
 	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
-	"github.com/anicoll/unicom/internal/email"
 	"github.com/anicoll/unicom/internal/workflows"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -32,33 +31,28 @@ func New(tc temporalClient, logger *zap.Logger) *Server {
 
 func (s *Server) SendAsync(ctx context.Context, req *pb.SendAsyncRequest) (*pb.SendResponse, error) {
 	workflowRequest := workflows.Request{
-		EmailRequest: email.SendEmailRequest{
-			FromAddress:      req.FromAddress,
-			Subject:          req.Subject,
-			ReplyToAddresses: []string{req.FromAddress},
-			ToAddresses:      []string{req.ToAddress},
-			HtmlBody:         req.Html,
-		},
-		SleepDuration: time.Duration(0),
+		EmailRequest:     mapEmailRequestIn(req),
+		SleepDuration:    time.Duration(0),
+		ResponseRequests: make([]*workflows.ResponseRequest, 0, len(req.GetResponseChannels())),
 	}
 
-	if req.GetResponseChannel() != nil {
-		switch req.ResponseChannel.Schema {
+	for _, responseChannal := range req.GetResponseChannels() {
+		switch responseChannal.Schema {
 		case pb.ResponseSchema_HTTP:
-			workflowRequest.ResponseRequest = workflows.ResponseRequest{
+			workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 				Type: workflows.WebhookResponseType,
-				Url:  req.ResponseChannel.GetUrl(),
-			}
+				Url:  responseChannal.GetUrl(),
+			})
 		case pb.ResponseSchema_SQS:
-			workflowRequest.ResponseRequest = workflows.ResponseRequest{
+			workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 				Type: workflows.SqsResponseType,
-				Url:  req.ResponseChannel.GetUrl(),
-			}
+				Url:  responseChannal.GetUrl(),
+			})
 		case pb.ResponseSchema_EVENT_BRIDGE:
-			workflowRequest.ResponseRequest = workflows.ResponseRequest{
+			workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 				Type: workflows.EventBridgeResponseType,
-				Url:  req.ResponseChannel.GetUrl(),
-			}
+				Url:  responseChannal.GetUrl(),
+			})
 		}
 	}
 
@@ -79,13 +73,8 @@ func (s *Server) SendAsync(ctx context.Context, req *pb.SendAsyncRequest) (*pb.S
 
 func (s *Server) SendSync(ctx context.Context, req *pb.SendSyncRequest) (*pb.SendResponse, error) {
 	workflowId, err := s.tc.StartSendSyncWorkflow(ctx, workflows.Request{
-		EmailRequest: email.SendEmailRequest{
-			FromAddress:      req.FromAddress,
-			Subject:          req.Subject,
-			ReplyToAddresses: []string{req.FromAddress},
-			ToAddresses:      []string{req.ToAddress},
-			HtmlBody:         req.Html,
-		},
+		EmailRequest:  mapEmailRequestIn(req),
+		SleepDuration: time.Duration(0),
 	})
 	if err != nil {
 		s.logger.Error(err.Error(), zap.Error(err))

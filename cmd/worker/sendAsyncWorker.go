@@ -46,8 +46,6 @@ func sendAsyncWorkerAction(args workerArgs) error {
 	}
 	defer func() { _ = zapLogger.Sync() }()
 
-	logger := logur.LoggerToKV(zapadapter.New(zapLogger))
-
 	awsConfig, err := config.LoadDefaultConfig(ctx, config.WithRegion(args.region))
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
@@ -58,7 +56,7 @@ func sendAsyncWorkerAction(args workerArgs) error {
 	temporalClient, err := client.Dial(client.Options{
 		HostPort:  args.temporalAddress,
 		Namespace: args.temporalNamespace,
-		Logger:    logger,
+		Logger:    logur.LoggerToKV(zapadapter.New(zapLogger)),
 		MetricsHandler: sdktally.NewMetricsHandler(newPrometheusScope(prometheus.Configuration{
 			ListenAddress: fmt.Sprintf("0.0.0.0:%d", args.opsPort),
 			TimerType:     "histogram",

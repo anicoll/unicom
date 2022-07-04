@@ -6,19 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-message SendAsyncRequest {
-    string to_address = 1;
-    string from_address = 2;
-    string subject = 4;
-    string html = 5;
-    repeated Document attachments = 8;
-    ResponseChannel response_channel = 7;
-    // any point in time in the future.
-    // if time has past, will send immediately.
-    google.protobuf.Timestamp send_at = 6;
-}
-
-message Document {
+message Attachment {
     string name = 1;
     bytes data = 2;
 }
@@ -39,11 +27,23 @@ message SendSyncRequest {
     string from_address = 2;
     string html = 3;
     string subject = 4;
-    // repeated Document attachments = 4;
+    repeated Attachment attachments = 5;
 }
 
 message SendResponse {
     string id = 1;
+}
+
+message SendAsyncRequest {
+    string to_address = 1;
+    string from_address = 2;
+    string subject = 4;
+    string html = 5;
+    // any point in time in the future.
+    // if time has past, will send immediately.
+    google.protobuf.Timestamp send_at = 6;
+    repeated ResponseChannel response_channels = 7;
+    repeated Attachment attachments = 8;
 }
 
 message GetStatusRequest {

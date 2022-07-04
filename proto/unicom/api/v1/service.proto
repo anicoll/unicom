@@ -7,69 +7,69 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 message Attachment {
-    string name = 1;
-    bytes data = 2;
+  string name = 1;
+  bytes data = 2;
 }
 
 enum ResponseSchema {
-    HTTP = 0;
-    SQS = 1;
-    EVENT_BRIDGE = 2;
-  }
+  HTTP = 0;
+  SQS = 1;
+  EVENT_BRIDGE = 2;
+}
 
 message ResponseChannel {
-    ResponseSchema schema = 1;
-    string url = 2;
+  ResponseSchema schema = 1;
+  string url = 2;
+}
+
+message ResponseEvent {
+  string workflow_id = 1;
+  string status = 2;
+  optional string error_message = 3;
 }
 
 message SendSyncRequest {
-    string to_address = 1;
-    string from_address = 2;
-    string html = 3;
-    string subject = 4;
-    repeated Attachment attachments = 5;
+  string to_address = 1;
+  string from_address = 2;
+  string html = 3;
+  string subject = 4;
+  repeated Attachment attachments = 5;
 }
 
-message SendResponse {
-    string id = 1;
-}
+message SendResponse { string id = 1; }
 
 message SendAsyncRequest {
-    string to_address = 1;
-    string from_address = 2;
-    string subject = 4;
-    string html = 5;
-    // any point in time in the future.
-    // if time has past, will send immediately.
-    google.protobuf.Timestamp send_at = 6;
-    repeated ResponseChannel response_channels = 7;
-    repeated Attachment attachments = 8;
+  string to_address = 1;
+  string from_address = 2;
+  string subject = 4;
+  string html = 5;
+  // any point in time in the future.
+  // if time has past, will send immediately.
+  google.protobuf.Timestamp send_at = 6;
+  repeated ResponseChannel response_channels = 7;
+  repeated Attachment attachments = 8;
 }
 
-message GetStatusRequest {
-    string id = 1;
-}
+message GetStatusRequest { string id = 1; }
 
-message GetStatusResponse {
-    string status = 1;
-}
+message GetStatusResponse { string status = 1; }
 
 service Unicom {
-    rpc SendSync(SendSyncRequest) returns (SendResponse)  {
-        option (google.api.http) = {
-            post: "/unicom/v1/send-sync"
-            body: "*"
-        };
+  rpc SendSync(SendSyncRequest) returns (SendResponse) {
+    option (google.api.http) = {
+      post : "/unicom/v1/send-sync"
+      body : "*"
     };
-    rpc SendAsync(SendAsyncRequest) returns (SendResponse)  {
-        option (google.api.http) = {
-            post: "/unicom/v1/send-async"
-            body: "*"
-        };
+  };
+  rpc SendAsync(SendAsyncRequest) returns (SendResponse) {
+    option (google.api.http) = {
+      post : "/unicom/v1/send-async"
+      body : "*"
     };
-    rpc GetStatus(GetStatusRequest) returns (GetStatusResponse)  {
-        option (google.api.http) = {
-            get: "/unicom/v1/status/{id}"
-        };
+  };
+  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {
+    option (google.api.http) = {
+      get : "/unicom/v1/status/{id}"
     };
+  };
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	ses "github.com/aws/aws-sdk-go-v2/service/sesv2"
 	"github.com/aws/aws-sdk-go-v2/service/sesv2/types"
 )
@@ -29,9 +28,9 @@ type Attachment struct {
 	Data []byte
 }
 
-func NewService(cfg aws.Config) *Service {
+func NewService(client *ses.Client) *Service {
 	return &Service{
-		sesClient: ses.NewFromConfig(cfg),
+		sesClient: client,
 	}
 }
 

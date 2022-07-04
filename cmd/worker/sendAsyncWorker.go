@@ -6,8 +6,11 @@ import (
 	"log"
 
 	"github.com/anicoll/unicom/internal/email"
+	"github.com/anicoll/unicom/internal/sqs"
 	"github.com/anicoll/unicom/internal/workflows"
 	"github.com/aws/aws-sdk-go-v2/config"
+	ses "github.com/aws/aws-sdk-go-v2/service/sesv2"
+	aws_sqs "github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/uber-go/tally/v4/prometheus"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/client"
@@ -21,12 +24,12 @@ import (
 
 const SendAsyncTaskQueue string = "unicom_send_async_task_queue"
 
-func SendAsyncWorker(temporalClient client.Client, es *email.Service) error {
+func SendAsyncWorker(temporalClient client.Client, emailClient *email.Service, sqsClient *sqs.Service) error {
 	w := worker.New(temporalClient, SendAsyncTaskQueue, worker.Options{})
 
 	registerOptions := workflow.RegisterOptions{}
 
-	activities := workflows.NewActivities(es)
+	activities := workflows.NewActivities(emailClient, sqsClient)
 
 	w.RegisterWorkflowWithOptions(workflows.SendAsyncWorkflow, registerOptions)
 
@@ -51,7 +54,13 @@ func sendAsyncWorkerAction(args workerArgs) error {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
 
-	emailService := email.NewService(awsConfig)
+	// TODO: add status Checkers
+	sqsClient := aws_sqs.NewFromConfig(awsConfig)
+	sqsService := sqs.NewService(sqsClient)
+
+	// TODO: add status Checkers
+	sesClient := ses.NewFromConfig(awsConfig)
+	emailService := email.NewService(sesClient)
 
 	temporalClient, err := client.Dial(client.Options{
 		HostPort:  args.temporalAddress,
@@ -67,5 +76,5 @@ func sendAsyncWorkerAction(args workerArgs) error {
 	}
 	defer temporalClient.Close()
 
-	return SendAsyncWorker(temporalClient, emailService)
+	return SendAsyncWorker(temporalClient, emailService, sqsService)
 }

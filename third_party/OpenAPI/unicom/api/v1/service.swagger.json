@@ -16,9 +16,9 @@
     "application/json"
   ],
   "paths": {
-    "/unicom/v1/send-async": {
+    "/unicom/v1/send-communication": {
       "post": {
-        "operationId": "Unicom_SendAsync",
+        "operationId": "Unicom_SendCommunication",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -39,39 +39,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1SendAsyncRequest"
-            }
-          }
-        ],
-        "tags": [
-          "Unicom"
-        ]
-      }
-    },
-    "/unicom/v1/send-sync": {
-      "post": {
-        "operationId": "Unicom_SendSync",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1SendResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1SendSyncRequest"
+              "$ref": "#/definitions/v1SendCommunicationRequest"
             }
           }
         ],
@@ -151,6 +119,29 @@
         }
       }
     },
+    "v1EmailRequest": {
+      "type": "object",
+      "properties": {
+        "toAddress": {
+          "type": "string"
+        },
+        "fromAddress": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Attachment"
+          }
+        }
+      }
+    },
     "v1GetStatusResponse": {
       "type": "object",
       "properties": {
@@ -179,25 +170,22 @@
       ],
       "default": "HTTP"
     },
-    "v1SendAsyncRequest": {
+    "v1SendCommunicationRequest": {
       "type": "object",
       "properties": {
-        "toAddress": {
-          "type": "string"
+        "email": {
+          "$ref": "#/definitions/v1EmailRequest"
         },
-        "fromAddress": {
-          "type": "string"
-        },
-        "subject": {
-          "type": "string"
-        },
-        "html": {
-          "type": "string"
+        "isAsync": {
+          "type": "boolean"
         },
         "sendAt": {
           "type": "string",
           "format": "date-time",
           "description": "any point in time in the future.\nif time has past, will send immediately."
+        },
+        "domain": {
+          "type": "string"
         },
         "responseChannels": {
           "type": "array",
@@ -218,29 +206,6 @@
       "properties": {
         "id": {
           "type": "string"
-        }
-      }
-    },
-    "v1SendSyncRequest": {
-      "type": "object",
-      "properties": {
-        "toAddress": {
-          "type": "string"
-        },
-        "fromAddress": {
-          "type": "string"
-        },
-        "html": {
-          "type": "string"
-        },
-        "subject": {
-          "type": "string"
-        },
-        "attachments": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Attachment"
-          }
         }
       }
     }

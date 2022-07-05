@@ -5,7 +5,6 @@ import (
 
 	"github.com/anicoll/unicom/cmd/worker"
 	"github.com/anicoll/unicom/internal/workflows"
-	"github.com/google/uuid"
 	"go.temporal.io/sdk/client"
 )
 
@@ -19,37 +18,17 @@ func New(tc client.Client) *Client {
 	}
 }
 
-func (c *Client) newWorkflowId() string {
-	return uuid.NewString()
+func (c *Client) GetWorkflowResult(ctx context.Context, workflowId string) error {
+	workflowRun := c.temporalClient.GetWorkflow(ctx, workflowId, "")
+	return workflowRun.Get(ctx, nil)
 }
 
-func (c *Client) StartSendSyncWorkflow(ctx context.Context, req workflows.Request) (string, error) {
-	workflowId := c.newWorkflowId()
-
-	wf, err := c.temporalClient.ExecuteWorkflow(ctx, client.StartWorkflowOptions{
-		TaskQueue: worker.SendSyncTaskQueue,
-		ID:        workflowId,
-	}, workflows.SendSyncWorkflow, req)
-	if err != nil {
-		return "", err
-	}
-	err = wf.Get(ctx, nil)
-	if err != nil {
-		return "", err
-	}
-	return workflowId, nil
-}
-
-func (c *Client) StartSendAsyncWorkflow(ctx context.Context, req workflows.Request) (string, error) {
-	workflowId := c.newWorkflowId()
+func (c *Client) StartCommunicationWorkflow(ctx context.Context, req workflows.Request, workflowId string) error {
 	_, err := c.temporalClient.ExecuteWorkflow(ctx, client.StartWorkflowOptions{
-		TaskQueue: worker.SendAsyncTaskQueue,
+		TaskQueue: worker.CommunicationTaskQueue,
 		ID:        workflowId,
-	}, workflows.SendAsyncWorkflow, req)
-	if err != nil {
-		return "", err
-	}
-	return workflowId, nil
+	}, workflows.CommunicationWorkflow, req)
+	return err
 }
 
 func (c *Client) GetWorkflowStatus(ctx context.Context, req workflows.StatusRequest) (string, error) {

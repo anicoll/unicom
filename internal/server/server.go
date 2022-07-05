@@ -5,80 +5,93 @@ import (
 	"time"
 
 	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
+	"github.com/anicoll/unicom/internal/model"
 	"github.com/anicoll/unicom/internal/workflows"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type temporalClient interface {
-	StartSendSyncWorkflow(ctx context.Context, req workflows.Request) (string, error)
-	StartSendAsyncWorkflow(ctx context.Context, req workflows.Request) (string, error)
+	StartCommunicationWorkflow(ctx context.Context, req workflows.Request, workflowId string) error
 	GetWorkflowStatus(ctx context.Context, req workflows.StatusRequest) (string, error)
+	GetWorkflowResult(ctx context.Context, workflowId string) error
+}
+
+type postgres interface {
+	CreateCommunication(ctx context.Context, comm *model.Communication) error
 }
 
 type Server struct {
 	tc     temporalClient
+	db     postgres
 	logger *zap.Logger
 }
 
-func New(tc temporalClient, logger *zap.Logger) *Server {
+func New(logger *zap.Logger, tc temporalClient, db postgres) *Server {
 	return &Server{
 		tc:     tc,
 		logger: logger,
+		db:     db,
 	}
 }
 
-func (s *Server) SendAsync(ctx context.Context, req *pb.SendAsyncRequest) (*pb.SendResponse, error) {
+func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendResponse, error) {
 	workflowRequest := workflows.Request{
-		EmailRequest:     mapEmailRequestIn(req),
+		EmailRequest:     mapEmailRequestIn(req.GetEmail()),
 		SleepDuration:    time.Duration(0),
 		ResponseRequests: make([]*workflows.ResponseRequest, 0, len(req.GetResponseChannels())),
+		Domain:           req.GetDomain(),
+		IsAsync:          req.GetIsAsync(),
 	}
-
-	for _, responseChannal := range req.GetResponseChannels() {
-		switch responseChannal.Schema {
-		case pb.ResponseSchema_HTTP:
-			workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
-				Type: workflows.WebhookResponseType,
-				Url:  responseChannal.GetUrl(),
-			})
-		case pb.ResponseSchema_SQS:
-			workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
-				Type: workflows.SqsResponseType,
-				Url:  responseChannal.GetUrl(),
-			})
-		case pb.ResponseSchema_EVENT_BRIDGE:
-			workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
-				Type: workflows.EventBridgeResponseType,
-				Url:  responseChannal.GetUrl(),
-			})
+	if workflowRequest.IsAsync {
+		for _, responseChannal := range req.GetResponseChannels() {
+			switch responseChannal.Schema {
+			case pb.ResponseSchema_HTTP:
+				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
+					Type: model.Webhook,
+					Url:  responseChannal.GetUrl(),
+					ID:   uuid.NewString(),
+				})
+			case pb.ResponseSchema_SQS:
+				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
+					Type: model.Sqs,
+					Url:  responseChannal.GetUrl(),
+					ID:   uuid.NewString(),
+				})
+			case pb.ResponseSchema_EVENT_BRIDGE:
+				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
+					Type: model.EventBridge,
+					Url:  responseChannal.GetUrl(),
+					ID:   uuid.NewString(),
+				})
+			}
+		}
+		now := time.Now()
+		requestTime := req.SendAt.AsTime()
+		if requestTime.After(now) {
+			workflowRequest.SleepDuration = requestTime.Sub(now)
 		}
 	}
 
-	now := time.Now()
-	requestTime := req.SendAt.AsTime()
-	if requestTime.After(now) {
-		workflowRequest.SleepDuration = requestTime.Sub(now)
+	workflowId := newWorkflowId()
+	err := s.db.CreateCommunication(ctx, mapWorkflowRequestToModel(workflowId, workflowRequest))
+	if err != nil {
+		s.logger.Error(err.Error(), zap.Error(err))
+		return nil, status.Error(codes.Internal, "unable to save communication")
 	}
-	workflowId, err := s.tc.StartSendAsyncWorkflow(ctx, workflowRequest)
+	err = s.tc.StartCommunicationWorkflow(ctx, workflowRequest, workflowId)
 	if err != nil {
 		s.logger.Error(err.Error(), zap.Error(err))
 		return nil, status.Error(codes.Internal, "unable to send request")
 	}
-	return &pb.SendResponse{
-		Id: workflowId,
-	}, nil
-}
-
-func (s *Server) SendSync(ctx context.Context, req *pb.SendSyncRequest) (*pb.SendResponse, error) {
-	workflowId, err := s.tc.StartSendSyncWorkflow(ctx, workflows.Request{
-		EmailRequest:  mapEmailRequestIn(req),
-		SleepDuration: time.Duration(0),
-	})
-	if err != nil {
-		s.logger.Error(err.Error(), zap.Error(err))
-		return nil, status.Error(codes.Internal, "unable to send request")
+	if !workflowRequest.IsAsync {
+		err = s.tc.GetWorkflowResult(ctx, workflowId)
+		if err != nil {
+			s.logger.Error(err.Error(), zap.Error(err))
+			return nil, status.Error(codes.Internal, "unable to get request result")
+		}
 	}
 	return &pb.SendResponse{
 		Id: workflowId,
@@ -96,4 +109,8 @@ func (s *Server) GetStatus(ctx context.Context, req *pb.GetStatusRequest) (*pb.G
 	return &pb.GetStatusResponse{
 		Status: string(workflowStatus),
 	}, nil
+}
+
+func newWorkflowId() string {
+	return uuid.NewString()
 }

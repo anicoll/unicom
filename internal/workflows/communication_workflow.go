@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/anicoll/unicom/internal/email"
+	"github.com/anicoll/unicom/internal/model"
 	"github.com/anicoll/unicom/internal/sqs"
 	"go.temporal.io/sdk/workflow"
 )
@@ -12,18 +13,13 @@ type Request struct {
 	EmailRequest     *email.Request
 	ResponseRequests []*ResponseRequest
 	SleepDuration    time.Duration
+	Domain           string
+	IsAsync          bool
 }
 
-type ResponseType string
-
-const (
-	SqsResponseType         ResponseType = "SQS"
-	WebhookResponseType     ResponseType = "HTTP"
-	EventBridgeResponseType ResponseType = "HTTP"
-)
-
 type ResponseRequest struct {
-	Type ResponseType
+	ID   string
+	Type model.ResponseChannelType
 	Url  string
 }
 
@@ -48,13 +44,14 @@ type StatusRequest struct {
 	WorkflowId string
 }
 
-func SendAsyncWorkflow(ctx workflow.Context, request Request) error {
+func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 	ao := workflow.ActivityOptions{
 		StartToCloseTimeout: 30 * time.Second,
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 	logger := workflow.GetLogger(ctx)
 	var activities *UnicomActivities
+	info := workflow.GetInfo(ctx)
 
 	currentState := &WorkflowState{
 		Status: WorkflowStarted,
@@ -89,15 +86,26 @@ func SendAsyncWorkflow(ctx workflow.Context, request Request) error {
 		logger.Error("Activity failed.", "activities.SendEmail", "Error", err)
 		currentState.Status = WorkflowError
 		currentState.Error = err
+		err = workflow.ExecuteActivity(ctx,
+			activities.MarkCommunicationAsFailed,
+			info.WorkflowExecution.ID,
+		).Get(ctx, nil)
+		if err != nil {
+			return err
+		}
+	}
+	err = workflow.ExecuteActivity(ctx,
+		activities.MarkCommunicationAsSent,
+		info.WorkflowExecution.ID,
+	).Get(ctx, nil)
+	if err != nil {
 		return err
 	}
 	currentState.Status = WorkflowActivityComplete
 
-	info := workflow.GetInfo(ctx)
-
 	for _, responseRequest := range request.ResponseRequests {
 		switch responseRequest.Type {
-		case SqsResponseType:
+		case model.Sqs:
 			var sqsMessageId *string
 			err = workflow.ExecuteActivity(ctx,
 				activities.NotifySqs,
@@ -107,20 +115,42 @@ func SendAsyncWorkflow(ctx workflow.Context, request Request) error {
 					Status:     string(currentState.Status),
 				},
 			).Get(ctx, &sqsMessageId)
+			// dont return, save as failed
 			if err != nil {
 				return err
 			}
-		case WebhookResponseType:
+		case model.Webhook:
 			err = workflow.ExecuteActivity(ctx,
 				activities.NotifyWebhook,
 			).Get(ctx, nil)
+			// dont return, save as failed
 			if err != nil {
 				return err
 			}
 		}
+		err = workflow.ExecuteActivity(ctx,
+			activities.SaveResponseChannelOutcome,
+			responseRequest.ID,
+			stringFromPtr(messageId),
+			statusFromError(err),
+		).Get(ctx, nil)
 	}
 
 	currentState.Status = WorkflowComplete
 	logger.Info("SendSyncWorkflow completed.")
 	return nil
+}
+
+func statusFromError(err error) model.Status {
+	if err != nil {
+		return model.Failed
+	}
+	return model.Success
+}
+
+func stringFromPtr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }

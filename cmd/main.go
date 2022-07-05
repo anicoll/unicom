@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/anicoll/unicom/cmd/dbinit"
+	"github.com/anicoll/unicom/cmd/migrations"
 	"github.com/anicoll/unicom/cmd/server"
 	"github.com/anicoll/unicom/cmd/worker"
 	"github.com/urfave/cli/v2"
@@ -18,8 +20,9 @@ func main() {
 		Version: version,
 		Commands: []*cli.Command{
 			server.ServerCommand(),
-			worker.SendSyncWorkerCommand(),
-			worker.SendAsyncWorkerCommand(),
+			worker.CommunicationWorkerCommand(),
+			migrations.MigrationCommand(),
+			dbinit.DatabaseCreationCommand(),
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -51,6 +54,12 @@ func main() {
 				EnvVars:  []string{"TEMPORAL_NAMESPACE"},
 				Required: false,
 				Value:    "default",
+			},
+			&cli.StringFlag{
+				Name:     "db-dsn",
+				EnvVars:  []string{"DB_DSN"},
+				Required: false,
+				Value:    "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable",
 			},
 		},
 	}

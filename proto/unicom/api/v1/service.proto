@@ -1,3 +1,4 @@
+
 syntax = "proto3";
 
 package unicom.api.v1;
@@ -28,7 +29,9 @@ message ResponseEvent {
   optional string error_message = 3;
 }
 
-message SendSyncRequest {
+message SendResponse { string id = 1; }
+
+message EmailRequest {
   string to_address = 1;
   string from_address = 2;
   string html = 3;
@@ -36,18 +39,15 @@ message SendSyncRequest {
   repeated Attachment attachments = 5;
 }
 
-message SendResponse { string id = 1; }
-
-message SendAsyncRequest {
-  string to_address = 1;
-  string from_address = 2;
-  string subject = 4;
-  string html = 5;
+message SendCommunicationRequest {
+  EmailRequest email = 1;
+  bool is_async = 2;
   // any point in time in the future.
   // if time has past, will send immediately.
-  google.protobuf.Timestamp send_at = 6;
-  repeated ResponseChannel response_channels = 7;
-  repeated Attachment attachments = 8;
+  google.protobuf.Timestamp send_at = 3;
+  string domain = 4;
+  repeated ResponseChannel response_channels = 5;
+  repeated Attachment attachments = 6;
 }
 
 message GetStatusRequest { string id = 1; }
@@ -55,15 +55,9 @@ message GetStatusRequest { string id = 1; }
 message GetStatusResponse { string status = 1; }
 
 service Unicom {
-  rpc SendSync(SendSyncRequest) returns (SendResponse) {
+  rpc SendCommunication(SendCommunicationRequest) returns (SendResponse) {
     option (google.api.http) = {
-      post : "/unicom/v1/send-sync"
-      body : "*"
-    };
-  };
-  rpc SendAsync(SendAsyncRequest) returns (SendResponse) {
-    option (google.api.http) = {
-      post : "/unicom/v1/send-async"
+      post : "/unicom/v1/send-communication"
       body : "*"
     };
   };

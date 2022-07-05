@@ -9,6 +9,7 @@ import (
 	"time"
 
 	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
+	"github.com/anicoll/unicom/internal/database"
 	"github.com/anicoll/unicom/internal/op"
 	"github.com/anicoll/unicom/internal/server"
 	"github.com/anicoll/unicom/internal/temporalclient"
@@ -16,6 +17,7 @@ import (
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/jackc/pgx/v4/pgxpool"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
@@ -53,6 +55,7 @@ func ServerCommand() *cli.Command {
 				grpcPort:          c.Int("grpc-port"),
 				httpPort:          c.Int("http-port"),
 				opsPort:           c.Int("ops-port"),
+				DbDsn:             c.String("db-dsn"),
 				temporalNamespace: c.String("temporal-namespace"),
 				temporalAddress:   c.String("temporal-server"),
 				name:              c.Command.Name,
@@ -71,6 +74,7 @@ type serverArgs struct {
 	temporalAddress   string
 	temporalNamespace string
 	name              string
+	DbDsn             string
 	description       string
 	version           string
 }
@@ -93,6 +97,12 @@ func run(args serverArgs) error {
 	// nolint: errcheck
 	defer logger.Sync()
 
+	conn, err := pgxpool.Connect(ctx, args.DbDsn)
+	if err != nil {
+		return err
+	}
+	db := database.New(conn)
+
 	tClient, err := client.Dial(client.Options{
 		HostPort:  args.temporalAddress,
 		Namespace: args.temporalNamespace,
@@ -109,7 +119,7 @@ func run(args serverArgs) error {
 
 	tc := temporalclient.New(tClient)
 
-	server := server.New(tc, logger)
+	server := server.New(logger, tc, db)
 
 	eg.Go(func() error {
 		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.grpcPort))

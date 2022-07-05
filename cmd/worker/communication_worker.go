@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/anicoll/unicom/internal/database"
 	"github.com/anicoll/unicom/internal/email"
+	"github.com/anicoll/unicom/internal/sqs"
 	"github.com/anicoll/unicom/internal/workflows"
 	"github.com/aws/aws-sdk-go-v2/config"
 	ses "github.com/aws/aws-sdk-go-v2/service/sesv2"
+	aws_sqs "github.com/aws/aws-sdk-go-v2/service/sqs"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/uber-go/tally/v4/prometheus"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/client"
@@ -20,23 +24,29 @@ import (
 	"logur.dev/logur"
 )
 
-const SendSyncTaskQueue string = "unicom_send_sync_task_queue"
+const CommunicationTaskQueue string = "unicom_task_queue"
 
-func SendSyncWorker(temporalClient client.Client, es *email.Service) error {
-	w := worker.New(temporalClient, SendSyncTaskQueue, worker.Options{})
+func CommunicationWorker(temporalClient client.Client, emailClient *email.Service, sqsClient *sqs.Service, db *database.Postgres) error {
+	w := worker.New(temporalClient, CommunicationTaskQueue, worker.Options{})
 
 	registerOptions := workflow.RegisterOptions{}
 
-	activities := workflows.NewActivities(es, nil)
+	activities := workflows.NewActivities(emailClient, sqsClient, db)
 
-	w.RegisterWorkflowWithOptions(workflows.SendSyncWorkflow, registerOptions)
+	w.RegisterWorkflowWithOptions(workflows.CommunicationWorkflow, registerOptions)
 
 	w.RegisterActivityWithOptions(activities.SendEmail, activity.RegisterOptions{})
+	w.RegisterActivityWithOptions(activities.NotifySqs, activity.RegisterOptions{})
+	w.RegisterActivityWithOptions(activities.NotifyWebhook, activity.RegisterOptions{})
+
+	w.RegisterActivityWithOptions(activities.MarkCommunicationAsSent, activity.RegisterOptions{})
+	w.RegisterActivityWithOptions(activities.MarkCommunicationAsFailed, activity.RegisterOptions{})
+	w.RegisterActivityWithOptions(activities.SaveResponseChannelOutcome, activity.RegisterOptions{})
 
 	return w.Run(worker.InterruptCh())
 }
 
-func sendSyncWorkerAction(args workerArgs) error {
+func communicationWorkerAction(args workerArgs) error {
 	ctx := context.Background()
 
 	zapLogger, err := zap.NewProduction()
@@ -45,12 +55,20 @@ func sendSyncWorkerAction(args workerArgs) error {
 	}
 	defer func() { _ = zapLogger.Sync() }()
 
-	logger := logur.LoggerToKV(zapadapter.New(zapLogger))
+	conn, err := pgxpool.Connect(ctx, args.DbDsn)
+	if err != nil {
+		return err
+	}
+	db := database.New(conn)
 
 	awsConfig, err := config.LoadDefaultConfig(ctx, config.WithRegion(args.region))
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
+
+	// TODO: add status Checkers
+	sqsClient := aws_sqs.NewFromConfig(awsConfig)
+	sqsService := sqs.NewService(sqsClient)
 
 	// TODO: add status Checkers
 	sesClient := ses.NewFromConfig(awsConfig)
@@ -59,7 +77,7 @@ func sendSyncWorkerAction(args workerArgs) error {
 	temporalClient, err := client.Dial(client.Options{
 		HostPort:  args.temporalAddress,
 		Namespace: args.temporalNamespace,
-		Logger:    logger,
+		Logger:    logur.LoggerToKV(zapadapter.New(zapLogger)),
 		MetricsHandler: sdktally.NewMetricsHandler(newPrometheusScope(prometheus.Configuration{
 			ListenAddress: fmt.Sprintf("0.0.0.0:%d", args.opsPort),
 			TimerType:     "histogram",
@@ -70,5 +88,5 @@ func sendSyncWorkerAction(args workerArgs) error {
 	}
 	defer temporalClient.Close()
 
-	return SendSyncWorker(temporalClient, emailService)
+	return CommunicationWorker(temporalClient, emailService, sqsService, db)
 }

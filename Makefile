@@ -1,7 +1,7 @@
 .PHONY: generate docker-build docker-netrc clean download
 
 CURRENT_DIR = $(notdir $(shell pwd))
-IMAGE_BASE=github.com/anicoll/unicom/${CURRENT_DIR}
+IMAGE_BASE=github.com/anicoll/${CURRENT_DIR}
 GIT_REV=$(shell git rev-parse --short HEAD)
 
 build:
@@ -26,7 +26,7 @@ clean:
 	rm main
 
 docker-build:
-	docker build -f Dockerfile . --build-arg CI_JOB_TOKEN=${CI_JOB_TOKEN} -t ${IMAGE_BASE}:${GIT_REV} -t ${IMAGE_BASE}:latest
+	docker build -f Dockerfile . -t ${IMAGE_BASE}:${GIT_REV} -t ${IMAGE_BASE}:latest
 
 docker-build-local: build-linux
 	docker build -f Dockerfile.local . -t ${IMAGE_BASE}:${GIT_REV} -t ${IMAGE_BASE}:latest

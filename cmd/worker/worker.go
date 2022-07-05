@@ -14,44 +14,28 @@ type workerArgs struct {
 	temporalAddress   string
 	temporalNamespace string
 	opsPort           int
+	DbDsn             string
 	name              string
 	region            string
 	description       string
 	version           string
 }
 
-func SendSyncWorkerCommand() *cli.Command {
+func CommunicationWorkerCommand() *cli.Command {
 	return &cli.Command{
-		Name: "send-sync-worker",
+		Name: "communication-worker",
 		Action: func(c *cli.Context) error {
 			args := workerArgs{
 				temporalNamespace: c.String("temporal-namespace"),
 				temporalAddress:   c.String("temporal-server"),
 				opsPort:           c.Int("ops-port"),
 				region:            c.String("aws-region"),
+				DbDsn:             c.String("db-dsn"),
 				name:              c.Command.Name,
 				description:       c.Command.Description,
 				version:           c.App.Version,
 			}
-			return sendSyncWorkerAction(args)
-		},
-	}
-}
-
-func SendAsyncWorkerCommand() *cli.Command {
-	return &cli.Command{
-		Name: "send-async-worker",
-		Action: func(c *cli.Context) error {
-			args := workerArgs{
-				temporalNamespace: c.String("temporal-namespace"),
-				temporalAddress:   c.String("temporal-server"),
-				opsPort:           c.Int("ops-port"),
-				region:            c.String("aws-region"),
-				name:              c.Command.Name,
-				description:       c.Command.Description,
-				version:           c.App.Version,
-			}
-			return sendAsyncWorkerAction(args)
+			return communicationWorkerAction(args)
 		},
 	}
 }

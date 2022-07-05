@@ -1,20 +1,30 @@
 version: "3.5"
 services:
-  async-worker:
-    container_name: async-worker
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    restart: always
     environment:
-      TEMPORAL_SERVER: localhost:7233
-      AWS_REGION: eu-west-2
-    command: send-async-worker
-    build: ./
-    network_mode: host
-    image: unicom:latest
-  sync-worker:
-    container_name: sync-worker
-    environment:
-      TEMPORAL_SERVER: localhost:7233
-      AWS_REGION: eu-west-2
-    command: send-sync-worker
-    build: ./
-    network_mode: host
-    image: unicom:latest
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+  # async-worker:
+  #   container_name: async-worker
+  #   environment:
+  #     TEMPORAL_SERVER: localhost:7233
+  #     AWS_REGION: eu-west-2
+  #   command: send-async-worker
+  #   build: ./
+  #   network_mode: host
+  #   image: unicom:latest
+  # sync-worker:
+  #   container_name: sync-worker
+  #   environment:
+  #     TEMPORAL_SERVER: localhost:7233
+  #     AWS_REGION: eu-west-2
+  #   command: send-sync-worker
+  #   build: ./
+  #   network_mode: host
+  #   image: unicom:latest

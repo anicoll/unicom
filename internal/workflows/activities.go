@@ -6,7 +6,6 @@ import (
 	"github.com/anicoll/unicom/internal/email"
 	"github.com/anicoll/unicom/internal/model"
 	"github.com/anicoll/unicom/internal/sqs"
-	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type emailService interface {
@@ -38,13 +37,11 @@ func NewActivities(es emailService, sqs sqsService, db postgres) *UnicomActiviti
 }
 
 func (a *UnicomActivities) SendEmail(ctx context.Context, req email.Request) (*string, error) {
-	// return a.emailService.Send(ctx, req)
-	return aws.String("ouhabsda"), nil
+	return a.emailService.Send(ctx, req)
 }
 
 func (a *UnicomActivities) NotifySqs(ctx context.Context, req sqs.Request) (*string, error) {
-	// return a.sqsService.Send(ctx, req)
-	return aws.String("ouhabsda"), nil
+	return a.sqsService.Send(ctx, req)
 }
 
 func (a *UnicomActivities) NotifyWebhook(ctx context.Context) error {

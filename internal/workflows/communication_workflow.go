@@ -78,28 +78,30 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 
 	var messageId *string
 
-	err = workflow.ExecuteActivity(ctx,
-		activities.SendEmail,
-		request.EmailRequest,
-	).Get(ctx, &messageId)
-	if err != nil {
-		logger.Error("Activity failed.", "activities.SendEmail", "Error", err)
-		currentState.Status = WorkflowError
-		currentState.Error = err
+	if request.EmailRequest != nil {
 		err = workflow.ExecuteActivity(ctx,
-			activities.MarkCommunicationAsFailed,
+			activities.SendEmail,
+			request.EmailRequest,
+		).Get(ctx, &messageId)
+		if err != nil {
+			logger.Error("Activity failed.", "activities.SendEmail", "Error", err)
+			currentState.Status = WorkflowError
+			currentState.Error = err
+			err = workflow.ExecuteActivity(ctx,
+				activities.MarkCommunicationAsFailed,
+				info.WorkflowExecution.ID,
+			).Get(ctx, nil)
+			if err != nil {
+				logger.Error("Activity failed.", "activities.MarkCommunicationAsFailed", "Error", err)
+			}
+		}
+		err = workflow.ExecuteActivity(ctx,
+			activities.MarkCommunicationAsSent,
 			info.WorkflowExecution.ID,
 		).Get(ctx, nil)
 		if err != nil {
 			return err
 		}
-	}
-	err = workflow.ExecuteActivity(ctx,
-		activities.MarkCommunicationAsSent,
-		info.WorkflowExecution.ID,
-	).Get(ctx, nil)
-	if err != nil {
-		return err
 	}
 	currentState.Status = WorkflowActivityComplete
 
@@ -110,9 +112,10 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 			err = workflow.ExecuteActivity(ctx,
 				activities.NotifySqs,
 				sqs.Request{
-					Queue:      responseRequest.Url,
-					WorkflowId: info.WorkflowExecution.ID,
-					Status:     string(currentState.Status),
+					Queue:        responseRequest.Url,
+					WorkflowId:   info.WorkflowExecution.ID,
+					Status:       string(currentState.Status),
+					ErrorMessage: ptrFromString(currentState.Error.Error()),
 				},
 			).Get(ctx, &sqsMessageId)
 			// dont return, save as failed
@@ -153,4 +156,8 @@ func stringFromPtr(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+func ptrFromString(s string) *string {
+	return &s
 }

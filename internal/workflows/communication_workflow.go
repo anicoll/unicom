@@ -115,7 +115,7 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 					Queue:        responseRequest.Url,
 					WorkflowId:   info.WorkflowExecution.ID,
 					Status:       string(currentState.Status),
-					ErrorMessage: ptrFromString(currentState.Error.Error()),
+					ErrorMessage: messageFromError(currentState.Error),
 				},
 			).Get(ctx, &sqsMessageId)
 			// dont return, save as failed
@@ -160,4 +160,11 @@ func stringFromPtr(s *string) string {
 
 func ptrFromString(s string) *string {
 	return &s
+}
+
+func messageFromError(err error) *string {
+	if err != nil {
+		return ptrFromString(err.Error())
+	}
+	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/anicoll/unicom/internal/email"
 	"github.com/anicoll/unicom/internal/model"
 	"github.com/anicoll/unicom/internal/sqs"
+	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
@@ -47,6 +48,10 @@ type StatusRequest struct {
 func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 	ao := workflow.ActivityOptions{
 		StartToCloseTimeout: 30 * time.Second,
+		RetryPolicy: &temporal.RetryPolicy{
+			MaximumAttempts:    10,
+			BackoffCoefficient: 1.2,
+		},
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 	logger := workflow.GetLogger(ctx)

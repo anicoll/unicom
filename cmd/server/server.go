@@ -49,6 +49,24 @@ func ServerCommand() *cli.Command {
 				Required: false,
 				Value:    8090,
 			},
+			&cli.StringFlag{
+				Name:     "aws-region",
+				EnvVars:  []string{"AWS_REGION"},
+				Required: false,
+				Value:    "eu-west-2",
+			},
+			&cli.StringFlag{
+				Name:     "temporal-server",
+				EnvVars:  []string{"TEMPORAL_SERVER"},
+				Required: true,
+				Value:    "localhost:7233",
+			},
+			&cli.StringFlag{
+				Name:     "temporal-namespace",
+				EnvVars:  []string{"TEMPORAL_NAMESPACE"},
+				Required: false,
+				Value:    "default",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			args := serverArgs{
@@ -80,8 +98,7 @@ type serverArgs struct {
 }
 
 func run(args serverArgs) error {
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	status := op.NewStatus(args.name, args.description).
@@ -89,7 +106,9 @@ func run(args serverArgs) error {
 
 	eg, ctx := errgroup.WithContext(ctx)
 
-	logger, err := zap.NewProduction()
+	zapConfig := zap.NewProductionConfig()
+	zapConfig.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+	logger, err := zapConfig.Build()
 	if err != nil {
 		return err
 	}
@@ -102,6 +121,14 @@ func run(args serverArgs) error {
 		return err
 	}
 	db := database.New(conn)
+
+	status.AddChecker("database", func(cr *op.CheckResponse) {
+		if err := db.Ping(ctx); err != nil {
+			cr.Unhealthy("database unavailable", "check database connection/network", "service wont be able to record expressions-of-interest")
+		} else {
+			cr.Healthy("healthy")
+		}
+	})
 
 	tClient, err := client.Dial(client.Options{
 		HostPort:  args.temporalAddress,
@@ -116,6 +143,14 @@ func run(args serverArgs) error {
 		log.Fatalln("Unable to create client", err)
 	}
 	defer tClient.Close()
+
+	status.AddChecker("temporal-client", func(cr *op.CheckResponse) {
+		if _, err := tClient.CheckHealth(ctx, &client.CheckHealthRequest{}); err != nil {
+			cr.Unhealthy("temporal-client unresponsive", "check server connection/network", "service wont be able to initiate any new workflows")
+		} else {
+			cr.Healthy("healthy")
+		}
+	})
 
 	tc := temporalclient.New(tClient)
 
@@ -141,12 +176,12 @@ func run(args serverArgs) error {
 
 	eg.Go(func() error {
 		logger.Info("serving HTTP", zap.Int("port", args.httpPort))
-		return runHTTPGateway(ctx, args.httpPort, args.grpcPort)
+		return runHTTPGateway(context.Background(), args.httpPort, args.grpcPort)
 	})
 
 	eg.Go(func() error {
 		logger.Info("serving ops status", zap.Int("port", args.opsPort))
-		http.Handle("/__/", op.NewHandler(status.ReadyUseHealthCheck()))
+		http.Handle("/__/", op.NewHandler(status.ReadyAlways()))
 		return http.ListenAndServe(fmt.Sprintf(":%d", args.opsPort), nil)
 	})
 

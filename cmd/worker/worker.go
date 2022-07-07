@@ -24,6 +24,26 @@ type workerArgs struct {
 func CommunicationWorkerCommand() *cli.Command {
 	return &cli.Command{
 		Name: "communication-worker",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "aws-region",
+				EnvVars:  []string{"AWS_REGION"},
+				Required: false,
+				Value:    "eu-west-2",
+			},
+			&cli.StringFlag{
+				Name:     "temporal-server",
+				EnvVars:  []string{"TEMPORAL_SERVER"},
+				Required: true,
+				Value:    "localhost:7233",
+			},
+			&cli.StringFlag{
+				Name:     "temporal-namespace",
+				EnvVars:  []string{"TEMPORAL_NAMESPACE"},
+				Required: false,
+				Value:    "default",
+			},
+		},
 		Action: func(c *cli.Context) error {
 			args := workerArgs{
 				temporalNamespace: c.String("temporal-namespace"),

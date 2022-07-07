@@ -38,24 +38,6 @@ func main() {
 				Value:    8081,
 			},
 			&cli.StringFlag{
-				Name:     "aws-region",
-				EnvVars:  []string{"AWS_REGION"},
-				Required: false,
-				Value:    "eu-west-2",
-			},
-			&cli.StringFlag{
-				Name:     "temporal-server",
-				EnvVars:  []string{"TEMPORAL_SERVER"},
-				Required: true,
-				Value:    "localhost:7233",
-			},
-			&cli.StringFlag{
-				Name:     "temporal-namespace",
-				EnvVars:  []string{"TEMPORAL_NAMESPACE"},
-				Required: false,
-				Value:    "default",
-			},
-			&cli.StringFlag{
 				Name:     "db-dsn",
 				EnvVars:  []string{"DB_DSN"},
 				Required: false,

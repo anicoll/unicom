@@ -245,53 +245,6 @@ func (x *ResponseEvent) GetErrorMessage() string {
 	return ""
 }
 
-type SendResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-}
-
-func (x *SendResponse) Reset() {
-	*x = SendResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_unicom_api_v1_service_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *SendResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SendResponse) ProtoMessage() {}
-
-func (x *SendResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_unicom_api_v1_service_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SendResponse.ProtoReflect.Descriptor instead.
-func (*SendResponse) Descriptor() ([]byte, []int) {
-	return file_unicom_api_v1_service_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *SendResponse) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
 type EmailRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -307,7 +260,7 @@ type EmailRequest struct {
 func (x *EmailRequest) Reset() {
 	*x = EmailRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_unicom_api_v1_service_proto_msgTypes[4]
+		mi := &file_unicom_api_v1_service_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -320,7 +273,7 @@ func (x *EmailRequest) String() string {
 func (*EmailRequest) ProtoMessage() {}
 
 func (x *EmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_unicom_api_v1_service_proto_msgTypes[4]
+	mi := &file_unicom_api_v1_service_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -333,7 +286,7 @@ func (x *EmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmailRequest.ProtoReflect.Descriptor instead.
 func (*EmailRequest) Descriptor() ([]byte, []int) {
-	return file_unicom_api_v1_service_proto_rawDescGZIP(), []int{4}
+	return file_unicom_api_v1_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *EmailRequest) GetToAddress() string {
@@ -389,7 +342,7 @@ type SendCommunicationRequest struct {
 func (x *SendCommunicationRequest) Reset() {
 	*x = SendCommunicationRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_unicom_api_v1_service_proto_msgTypes[5]
+		mi := &file_unicom_api_v1_service_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -402,7 +355,7 @@ func (x *SendCommunicationRequest) String() string {
 func (*SendCommunicationRequest) ProtoMessage() {}
 
 func (x *SendCommunicationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_unicom_api_v1_service_proto_msgTypes[5]
+	mi := &file_unicom_api_v1_service_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -415,7 +368,7 @@ func (x *SendCommunicationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendCommunicationRequest.ProtoReflect.Descriptor instead.
 func (*SendCommunicationRequest) Descriptor() ([]byte, []int) {
-	return file_unicom_api_v1_service_proto_rawDescGZIP(), []int{5}
+	return file_unicom_api_v1_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SendCommunicationRequest) GetEmail() *EmailRequest {
@@ -458,6 +411,53 @@ func (x *SendCommunicationRequest) GetAttachments() []*Attachment {
 		return x.Attachments
 	}
 	return nil
+}
+
+type SendResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *SendResponse) Reset() {
+	*x = SendResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_unicom_api_v1_service_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SendResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendResponse) ProtoMessage() {}
+
+func (x *SendResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_unicom_api_v1_service_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendResponse.ProtoReflect.Descriptor instead.
+func (*SendResponse) Descriptor() ([]byte, []int) {
+	return file_unicom_api_v1_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SendResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 type GetStatusRequest struct {
@@ -583,9 +583,7 @@ var file_unicom_api_v1_service_proto_rawDesc = []byte{
 	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x0c,
 	0x65, 0x72, 0x72, 0x6f, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x88, 0x01, 0x01, 0x42,
 	0x10, 0x0a, 0x0e, 0x5f, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x22, 0x1e, 0x0a, 0x0c, 0x53, 0x65, 0x6e, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69,
-	0x64, 0x22, 0xbb, 0x01, 0x0a, 0x0c, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x65, 0x22, 0xbb, 0x01, 0x0a, 0x0c, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65,
 	0x73, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x74, 0x6f, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x74, 0x6f, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73,
 	0x73, 0x12, 0x21, 0x0a, 0x0c, 0x66, 0x72, 0x6f, 0x6d, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73,
@@ -617,7 +615,9 @@ var file_unicom_api_v1_service_proto_rawDesc = []byte{
 	0x6e, 0x74, 0x73, 0x18, 0x06, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x75, 0x6e, 0x69, 0x63,
 	0x6f, 0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x41, 0x74, 0x74, 0x61, 0x63, 0x68,
 	0x6d, 0x65, 0x6e, 0x74, 0x52, 0x0b, 0x61, 0x74, 0x74, 0x61, 0x63, 0x68, 0x6d, 0x65, 0x6e, 0x74,
-	0x73, 0x22, 0x22, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x65,
+	0x73, 0x22, 0x1e, 0x0a, 0x0c, 0x53, 0x65, 0x6e, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69,
+	0x64, 0x22, 0x22, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x2b, 0x0a, 0x11, 0x47, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74,
 	0x75, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74,
@@ -675,9 +675,9 @@ var file_unicom_api_v1_service_proto_goTypes = []interface{}{
 	(*Attachment)(nil),               // 1: unicom.api.v1.Attachment
 	(*ResponseChannel)(nil),          // 2: unicom.api.v1.ResponseChannel
 	(*ResponseEvent)(nil),            // 3: unicom.api.v1.ResponseEvent
-	(*SendResponse)(nil),             // 4: unicom.api.v1.SendResponse
-	(*EmailRequest)(nil),             // 5: unicom.api.v1.EmailRequest
-	(*SendCommunicationRequest)(nil), // 6: unicom.api.v1.SendCommunicationRequest
+	(*EmailRequest)(nil),             // 4: unicom.api.v1.EmailRequest
+	(*SendCommunicationRequest)(nil), // 5: unicom.api.v1.SendCommunicationRequest
+	(*SendResponse)(nil),             // 6: unicom.api.v1.SendResponse
 	(*GetStatusRequest)(nil),         // 7: unicom.api.v1.GetStatusRequest
 	(*GetStatusResponse)(nil),        // 8: unicom.api.v1.GetStatusResponse
 	(*timestamppb.Timestamp)(nil),    // 9: google.protobuf.Timestamp
@@ -685,13 +685,13 @@ var file_unicom_api_v1_service_proto_goTypes = []interface{}{
 var file_unicom_api_v1_service_proto_depIdxs = []int32{
 	0, // 0: unicom.api.v1.ResponseChannel.schema:type_name -> unicom.api.v1.ResponseSchema
 	1, // 1: unicom.api.v1.EmailRequest.attachments:type_name -> unicom.api.v1.Attachment
-	5, // 2: unicom.api.v1.SendCommunicationRequest.email:type_name -> unicom.api.v1.EmailRequest
+	4, // 2: unicom.api.v1.SendCommunicationRequest.email:type_name -> unicom.api.v1.EmailRequest
 	9, // 3: unicom.api.v1.SendCommunicationRequest.send_at:type_name -> google.protobuf.Timestamp
 	2, // 4: unicom.api.v1.SendCommunicationRequest.response_channels:type_name -> unicom.api.v1.ResponseChannel
 	1, // 5: unicom.api.v1.SendCommunicationRequest.attachments:type_name -> unicom.api.v1.Attachment
-	6, // 6: unicom.api.v1.Unicom.SendCommunication:input_type -> unicom.api.v1.SendCommunicationRequest
+	5, // 6: unicom.api.v1.Unicom.SendCommunication:input_type -> unicom.api.v1.SendCommunicationRequest
 	7, // 7: unicom.api.v1.Unicom.GetStatus:input_type -> unicom.api.v1.GetStatusRequest
-	4, // 8: unicom.api.v1.Unicom.SendCommunication:output_type -> unicom.api.v1.SendResponse
+	6, // 8: unicom.api.v1.Unicom.SendCommunication:output_type -> unicom.api.v1.SendResponse
 	8, // 9: unicom.api.v1.Unicom.GetStatus:output_type -> unicom.api.v1.GetStatusResponse
 	8, // [8:10] is the sub-list for method output_type
 	6, // [6:8] is the sub-list for method input_type
@@ -743,18 +743,6 @@ func file_unicom_api_v1_service_proto_init() {
 			}
 		}
 		file_unicom_api_v1_service_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SendResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_unicom_api_v1_service_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EmailRequest); i {
 			case 0:
 				return &v.state
@@ -766,8 +754,20 @@ func file_unicom_api_v1_service_proto_init() {
 				return nil
 			}
 		}
-		file_unicom_api_v1_service_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_unicom_api_v1_service_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SendCommunicationRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_unicom_api_v1_service_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SendResponse); i {
 			case 0:
 				return &v.state
 			case 1:

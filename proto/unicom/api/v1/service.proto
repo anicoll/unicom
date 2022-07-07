@@ -29,8 +29,6 @@ message ResponseEvent {
   optional string error_message = 3;
 }
 
-message SendResponse { string id = 1; }
-
 message EmailRequest {
   string to_address = 1;
   string from_address = 2;
@@ -49,6 +47,8 @@ message SendCommunicationRequest {
   repeated ResponseChannel response_channels = 5;
   repeated Attachment attachments = 6;
 }
+
+message SendResponse { string id = 1; }
 
 message GetStatusRequest { string id = 1; }
 

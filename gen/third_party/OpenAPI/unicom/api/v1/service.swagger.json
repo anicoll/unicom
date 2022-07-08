@@ -192,12 +192,6 @@
           "items": {
             "$ref": "#/definitions/v1ResponseChannel"
           }
-        },
-        "attachments": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Attachment"
-          }
         }
       }
     },

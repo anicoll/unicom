@@ -38,7 +38,6 @@ func mapAttachmentsIn(attachments []*pb.Attachment) []email.Attachment {
 func mapWorkflowRequestToModel(workflowId string, req workflows.Request) *model.Communication {
 	resp := &model.Communication{
 		ID:               workflowId,
-		Domain:           req.Domain,
 		Type:             model.Email,
 		ResponseChannels: make([]*model.ResponseChannel, len(req.ResponseRequests)),
 	}

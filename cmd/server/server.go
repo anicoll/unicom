@@ -21,7 +21,6 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
-	sdktally "go.temporal.io/sdk/contrib/tally"
 	zapadapter "logur.dev/adapter/zap"
 
 	"github.com/urfave/cli/v2"
@@ -79,6 +78,7 @@ func ServerCommand() *cli.Command {
 				name:              c.Command.Name,
 				description:       c.Command.Description,
 				version:           c.App.Version,
+				owner:             c.App.Authors[0].Name,
 			}
 			return run(args)
 		},
@@ -89,6 +89,7 @@ type serverArgs struct {
 	grpcPort          int
 	httpPort          int
 	opsPort           int
+	owner             string
 	temporalAddress   string
 	temporalNamespace string
 	name              string
@@ -134,10 +135,10 @@ func run(args serverArgs) error {
 		HostPort:  args.temporalAddress,
 		Namespace: args.temporalNamespace,
 		Logger:    logur.LoggerToKV(zapadapter.New(logger)),
-		MetricsHandler: sdktally.NewMetricsHandler(newPrometheusScope(prometheus.Configuration{
-			ListenAddress: fmt.Sprintf("0.0.0.0:%d", args.opsPort),
-			TimerType:     "histogram",
-		})),
+		// MetricsHandler: sdktally.NewMetricsHandler(newPrometheusScope(prometheus.Configuration{
+		// 	ListenAddress: fmt.Sprintf("0.0.0.0:%d", args.opsPort),
+		// 	TimerType:     "histogram",
+		// }, args.owner)),
 	})
 	if err != nil {
 		log.Fatalln("Unable to create client", err)
@@ -181,14 +182,14 @@ func run(args serverArgs) error {
 
 	eg.Go(func() error {
 		logger.Info("serving ops status", zap.Int("port", args.opsPort))
-		http.Handle("/__/", op.NewHandler(status.ReadyAlways()))
+		http.Handle("/__/", op.NewHandler(status.ReadyUseHealthCheck()))
 		return http.ListenAndServe(fmt.Sprintf(":%d", args.opsPort), nil)
 	})
 
 	return eg.Wait()
 }
 
-func newPrometheusScope(c prometheus.Configuration) tally.Scope {
+func newPrometheusScope(c prometheus.Configuration, prefix string) tally.Scope {
 	reporter, err := c.NewReporter(
 		prometheus.ConfigurationOptions{
 			Registry: prom.NewRegistry(),
@@ -204,7 +205,7 @@ func newPrometheusScope(c prometheus.Configuration) tally.Scope {
 		CachedReporter:  reporter,
 		Separator:       prometheus.DefaultSeparator,
 		SanitizeOptions: &sanitizeOptions,
-		Prefix:          "home_finance_workflows",
+		Prefix:          prefix,
 	}
 	scope, _ := tally.NewRootScope(scopeOpts, time.Second)
 

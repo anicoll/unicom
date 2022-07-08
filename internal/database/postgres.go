@@ -53,11 +53,11 @@ func (p *Postgres) CreateCommunication(ctx context.Context, comm *model.Communic
 	return tx.Commit(ctx)
 }
 
-func (p *Postgres) SetCommunicationStatus(ctx context.Context, workflowId string, status model.Status) error {
+func (p *Postgres) SetCommunicationStatus(ctx context.Context, workflowId string, status model.Status, externalId *string) error {
 	_, err := p.pool.Exec(ctx,
 		`UPDATE communications
-		 SET "status" = $2, updated_at = $3
-		 WHERE id = $1`, workflowId, status, time.Now())
+		 SET "status" = $2, updated_at = $3, external_id = $4
+		 WHERE id = $1`, workflowId, status, time.Now(), externalId)
 	return err
 }
 

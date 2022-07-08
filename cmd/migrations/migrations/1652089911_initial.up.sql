@@ -6,6 +6,7 @@ CREATE TYPE notification_type AS ENUM('EMAIL', 'SMS', 'PUSH');
 CREATE TABLE IF NOT EXISTS communications (
   id TEXT NOT NULL,
   domain TEXT NOT NULL,
+  external_id TEXT DEFAULT NULL,
   "type" notification_type NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

@@ -12,12 +12,18 @@ import (
 )
 
 var version = "development"
+var author = ""
 
 func main() {
 	app := &cli.App{
 		Name:    "unicom-public-api-service",
 		Usage:   "exposes a 'public' api to other domains",
 		Version: version,
+		Authors: []*cli.Author{
+			{
+				Name: author,
+			},
+		},
 		Commands: []*cli.Command{
 			server.ServerCommand(),
 			worker.CommunicationWorkerCommand(),

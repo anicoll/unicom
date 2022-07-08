@@ -45,7 +45,6 @@ message SendCommunicationRequest {
   google.protobuf.Timestamp send_at = 3;
   string domain = 4;
   repeated ResponseChannel response_channels = 5;
-  repeated Attachment attachments = 6;
 }
 
 message SendResponse { string id = 1; }

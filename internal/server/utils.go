@@ -24,7 +24,7 @@ func mapEmailRequestIn(req *pb.EmailRequest) *email.Request {
 }
 
 func mapAttachmentsIn(attachments []*pb.Attachment) []email.Attachment {
-	resp := make([]email.Attachment, 0, len(attachments))
+	resp := make([]email.Attachment, len(attachments))
 
 	for i, attachment := range attachments {
 		resp[i] = email.Attachment{

@@ -13,6 +13,7 @@ import (
 type workerArgs struct {
 	temporalAddress   string
 	temporalNamespace string
+	owner             string
 	opsPort           int
 	DbDsn             string
 	name              string
@@ -54,13 +55,14 @@ func CommunicationWorkerCommand() *cli.Command {
 				name:              c.Command.Name,
 				description:       c.Command.Description,
 				version:           c.App.Version,
+				owner:             c.App.Authors[0].Name,
 			}
 			return communicationWorkerAction(args)
 		},
 	}
 }
 
-func newPrometheusScope(c prometheus.Configuration) tally.Scope {
+func newPrometheusScope(c prometheus.Configuration, prefix string) tally.Scope {
 	reporter, err := c.NewReporter(
 		prometheus.ConfigurationOptions{
 			Registry: prom.NewRegistry(),
@@ -76,7 +78,7 @@ func newPrometheusScope(c prometheus.Configuration) tally.Scope {
 		CachedReporter:  reporter,
 		Separator:       prometheus.DefaultSeparator,
 		SanitizeOptions: &sanitizeOptions,
-		Prefix:          "home_finance_workflows",
+		Prefix:          prefix,
 	}
 	scope, _ := tally.NewRootScope(scopeOpts, time.Second)
 

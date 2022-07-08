@@ -39,8 +39,7 @@ func CommunicationWorker(temporalClient client.Client, emailClient *email.Servic
 	w.RegisterActivityWithOptions(activities.NotifySqs, activity.RegisterOptions{})
 	w.RegisterActivityWithOptions(activities.NotifyWebhook, activity.RegisterOptions{})
 
-	w.RegisterActivityWithOptions(activities.MarkCommunicationAsSent, activity.RegisterOptions{})
-	w.RegisterActivityWithOptions(activities.MarkCommunicationAsFailed, activity.RegisterOptions{})
+	w.RegisterActivityWithOptions(activities.UpdateCommunicationStatus, activity.RegisterOptions{})
 	w.RegisterActivityWithOptions(activities.SaveResponseChannelOutcome, activity.RegisterOptions{})
 
 	return w.Run(worker.InterruptCh())
@@ -81,7 +80,7 @@ func communicationWorkerAction(args workerArgs) error {
 		MetricsHandler: sdktally.NewMetricsHandler(newPrometheusScope(prometheus.Configuration{
 			ListenAddress: fmt.Sprintf("0.0.0.0:%d", args.opsPort),
 			TimerType:     "histogram",
-		})),
+		}, args.owner)),
 	})
 	if err != nil {
 		log.Fatalln("Unable to create client", err)

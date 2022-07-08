@@ -14,8 +14,6 @@ type Request struct {
 	EmailRequest     *email.Request
 	ResponseRequests []*ResponseRequest
 	SleepDuration    time.Duration
-	Domain           string
-	IsAsync          bool
 }
 
 type ResponseRequest struct {
@@ -86,26 +84,31 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 	if request.EmailRequest != nil {
 		err = workflow.ExecuteActivity(ctx,
 			activities.SendEmail,
-			request.EmailRequest,
+			*request.EmailRequest,
 		).Get(ctx, &messageId)
 		if err != nil {
 			logger.Error("Activity failed.", "activities.SendEmail", "Error", err)
 			currentState.Status = WorkflowError
 			currentState.Error = err
 			err = workflow.ExecuteActivity(ctx,
-				activities.MarkCommunicationAsFailed,
+				activities.UpdateCommunicationStatus,
 				info.WorkflowExecution.ID,
+				model.Failed,
+				messageId,
 			).Get(ctx, nil)
 			if err != nil {
 				logger.Error("Activity failed.", "activities.MarkCommunicationAsFailed", "Error", err)
 			}
-		}
-		err = workflow.ExecuteActivity(ctx,
-			activities.MarkCommunicationAsSent,
-			info.WorkflowExecution.ID,
-		).Get(ctx, nil)
-		if err != nil {
-			return err
+		} else {
+			err = workflow.ExecuteActivity(ctx,
+				activities.UpdateCommunicationStatus,
+				info.WorkflowExecution.ID,
+				model.Success,
+				messageId,
+			).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	currentState.Status = WorkflowActivityComplete

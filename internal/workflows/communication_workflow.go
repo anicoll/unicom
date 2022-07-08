@@ -14,6 +14,7 @@ type Request struct {
 	EmailRequest     *email.Request
 	ResponseRequests []*ResponseRequest
 	SleepDuration    time.Duration
+	Domain           string
 }
 
 type ResponseRequest struct {

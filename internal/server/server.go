@@ -42,6 +42,7 @@ func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicatio
 		EmailRequest:     mapEmailRequestIn(req.GetEmail()),
 		SleepDuration:    time.Duration(0),
 		ResponseRequests: make([]*workflows.ResponseRequest, 0, len(req.GetResponseChannels())),
+		Domain:           req.GetDomain(),
 	}
 	if req.IsAsync {
 		for _, responseChannal := range req.GetResponseChannels() {

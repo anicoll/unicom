@@ -39,6 +39,7 @@ func mapWorkflowRequestToModel(workflowId string, req workflows.Request) *model.
 	resp := &model.Communication{
 		ID:               workflowId,
 		Type:             model.Email,
+		Domain:           req.Domain,
 		ResponseChannels: make([]*model.ResponseChannel, len(req.ResponseRequests)),
 	}
 	for index, channel := range req.ResponseRequests {

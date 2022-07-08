@@ -1,6 +1,9 @@
 package server
 
 import (
+	"io/ioutil"
+	"net/http"
+
 	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
 
 	"github.com/anicoll/unicom/internal/email"
@@ -8,9 +11,14 @@ import (
 	"github.com/anicoll/unicom/internal/workflows"
 )
 
-func mapEmailRequestIn(req *pb.EmailRequest) *email.Request {
+func mapEmailRequestIn(req *pb.EmailRequest) (*email.Request, error) {
 	if req == nil {
-		return nil
+		return nil, nil
+	}
+
+	attachments, err := mapAttachmentsIn(req.Attachments)
+	if err != nil {
+		return nil, err
 	}
 	return &email.Request{
 		FromAddress:      req.FromAddress,
@@ -18,21 +26,32 @@ func mapEmailRequestIn(req *pb.EmailRequest) *email.Request {
 		ReplyToAddresses: []string{req.FromAddress},
 		ToAddresses:      []string{req.ToAddress},
 		HtmlBody:         req.Html,
-		Attachments:      mapAttachmentsIn(req.Attachments),
-	}
+		Attachments:      attachments,
+	}, nil
 
 }
 
-func mapAttachmentsIn(attachments []*pb.Attachment) []email.Attachment {
+func mapAttachmentsIn(attachments []*pb.Attachment) ([]email.Attachment, error) {
 	resp := make([]email.Attachment, len(attachments))
 
 	for i, attachment := range attachments {
+		if attachment.Url != nil {
+			data, err := downloadFile(*attachment.Url)
+			if err != nil {
+				return nil, err
+			}
+			resp[i] = email.Attachment{
+				Name: attachment.GetName(),
+				Data: data,
+			}
+			continue
+		}
 		resp[i] = email.Attachment{
 			Name: attachment.GetName(),
 			Data: attachment.GetData(),
 		}
 	}
-	return resp
+	return resp, nil
 }
 
 func mapWorkflowRequestToModel(workflowId string, req workflows.Request) *model.Communication {
@@ -51,4 +70,14 @@ func mapWorkflowRequestToModel(workflowId string, req workflows.Request) *model.
 		}
 	}
 	return resp
+}
+
+// DownloadFile will download the file and return the data.
+func downloadFile(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
 }

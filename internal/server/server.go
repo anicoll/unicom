@@ -38,8 +38,13 @@ func New(logger *zap.Logger, tc temporalClient, db postgres) *Server {
 }
 
 func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendResponse, error) {
+	emailRequest, err := mapEmailRequestIn(req.GetEmail())
+	if err != nil {
+		s.logger.Error(err.Error(), zap.Error(err))
+		return nil, status.Error(codes.InvalidArgument, "unable to map email request")
+	}
 	workflowRequest := workflows.Request{
-		EmailRequest:     mapEmailRequestIn(req.GetEmail()),
+		EmailRequest:     emailRequest,
 		SleepDuration:    time.Duration(0),
 		ResponseRequests: make([]*workflows.ResponseRequest, 0, len(req.GetResponseChannels())),
 		Domain:           req.GetDomain(),
@@ -75,7 +80,7 @@ func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicatio
 	}
 
 	workflowId := newWorkflowId()
-	err := s.db.CreateCommunication(ctx, mapWorkflowRequestToModel(workflowId, workflowRequest))
+	err = s.db.CreateCommunication(ctx, mapWorkflowRequestToModel(workflowId, workflowRequest))
 	if err != nil {
 		s.logger.Error(err.Error(), zap.Error(err))
 		return nil, status.Error(codes.Internal, "unable to save communication")

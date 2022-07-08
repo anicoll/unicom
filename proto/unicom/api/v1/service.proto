@@ -10,6 +10,7 @@ import "google/protobuf/timestamp.proto";
 message Attachment {
   string name = 1;
   bytes data = 2;
+  optional string url = 3;
 }
 
 enum ResponseSchema {

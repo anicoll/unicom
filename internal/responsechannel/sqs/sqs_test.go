@@ -4,7 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anicoll/unicom/internal/sqs"
+	"github.com/anicoll/unicom/internal/model"
+	"github.com/anicoll/unicom/internal/responsechannel/sqs"
 	aws_sqs "github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/assert"
@@ -34,7 +35,7 @@ func (suite *ServiceTestSuite) AfterTest() {
 func (suite *ServiceTestSuite) TestService_SendMessage_Success() {
 	ctx := context.Background()
 
-	req := sqs.Request{}
+	req := model.ResponseChannelRequest{}
 	faker.FakeData(&req)
 
 	expectedResponse := aws_sqs.SendMessageOutput{}

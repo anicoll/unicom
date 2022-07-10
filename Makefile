@@ -1,14 +1,15 @@
 .PHONY: generate docker-build docker-netrc clean download
 
 CURRENT_DIR = $(notdir $(shell pwd))
-IMAGE_BASE=github.com/anicoll/${CURRENT_DIR}
+# IMAGE_BASE=github.com/anicoll/${CURRENT_DIR}
+IMAGE_BASE=docker.io/android101/${CURRENT_DIR}
 GIT_REV=$(shell git rev-parse --short HEAD)
 
 build:
 	CGO_ENABLED=0 go build -o main -ldflags="-X 'main.version=${GIT_REV}'" -ldflags="-X 'main.author=${CURRENT_DIR}'" ./cmd/
 
 lint:
-	golangci-lint run ./...
+	./lint.sh
 
 format:
 	gofmt -l -w .

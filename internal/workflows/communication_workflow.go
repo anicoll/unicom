@@ -5,7 +5,6 @@ import (
 
 	"github.com/anicoll/unicom/internal/email"
 	"github.com/anicoll/unicom/internal/model"
-	"github.com/anicoll/unicom/internal/sqs"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
@@ -120,8 +119,8 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 			var sqsMessageId *string
 			err = workflow.ExecuteActivity(ctx,
 				activities.NotifySqs,
-				sqs.Request{
-					Queue:        responseRequest.Url,
+				model.ResponseChannelRequest{
+					Url:          responseRequest.Url,
 					WorkflowId:   info.WorkflowExecution.ID,
 					Status:       string(currentState.Status),
 					ErrorMessage: messageFromError(currentState.Error),
@@ -134,6 +133,12 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 		case model.Webhook:
 			err = workflow.ExecuteActivity(ctx,
 				activities.NotifyWebhook,
+				model.ResponseChannelRequest{
+					Url:          responseRequest.Url,
+					WorkflowId:   info.WorkflowExecution.ID,
+					Status:       string(currentState.Status),
+					ErrorMessage: messageFromError(currentState.Error),
+				},
 			).Get(ctx, nil)
 			// dont return, save as failed
 			if err != nil {

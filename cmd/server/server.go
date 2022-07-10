@@ -189,6 +189,7 @@ func run(args serverArgs) error {
 	return eg.Wait()
 }
 
+// nolint: deadcode, unused
 func newPrometheusScope(c prometheus.Configuration, prefix string) tally.Scope {
 	reporter, err := c.NewReporter(
 		prometheus.ConfigurationOptions{

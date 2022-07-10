@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/anicoll/unicom/internal/database"
 	"github.com/anicoll/unicom/internal/email"
-	"github.com/anicoll/unicom/internal/sqs"
+	"github.com/anicoll/unicom/internal/responsechannel/sqs"
+	"github.com/anicoll/unicom/internal/responsechannel/webhook"
 	"github.com/anicoll/unicom/internal/workflows"
 	"github.com/aws/aws-sdk-go-v2/config"
 	ses "github.com/aws/aws-sdk-go-v2/service/sesv2"
@@ -26,12 +29,12 @@ import (
 
 const CommunicationTaskQueue string = "unicom_task_queue"
 
-func CommunicationWorker(temporalClient client.Client, emailClient *email.Service, sqsClient *sqs.Service, db *database.Postgres) error {
+func CommunicationWorker(temporalClient client.Client, emailClient *email.Service, sqsClient *sqs.Service, webhookClient *webhook.Service, db *database.Postgres) error {
 	w := worker.New(temporalClient, CommunicationTaskQueue, worker.Options{})
 
 	registerOptions := workflow.RegisterOptions{}
 
-	activities := workflows.NewActivities(emailClient, sqsClient, db)
+	activities := workflows.NewActivities(emailClient, sqsClient, webhookClient, db)
 
 	w.RegisterWorkflowWithOptions(workflows.CommunicationWorkflow, registerOptions)
 
@@ -69,6 +72,12 @@ func communicationWorkerAction(args workerArgs) error {
 	sqsClient := aws_sqs.NewFromConfig(awsConfig)
 	sqsService := sqs.NewService(sqsClient)
 
+	httpClient := &http.Client{
+		Timeout: time.Second * 30,
+	}
+	// TODO: add status Checkers
+	webhookClient := webhook.NewService(httpClient)
+
 	// TODO: add status Checkers
 	sesClient := ses.NewFromConfig(awsConfig)
 	emailService := email.NewService(sesClient)
@@ -87,5 +96,5 @@ func communicationWorkerAction(args workerArgs) error {
 	}
 	defer temporalClient.Close()
 
-	return CommunicationWorker(temporalClient, emailService, sqsService, db)
+	return CommunicationWorker(temporalClient, emailService, sqsService, webhookClient, db)
 }

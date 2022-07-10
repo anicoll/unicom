@@ -5,15 +5,14 @@ import (
 
 	"github.com/anicoll/unicom/internal/email"
 	"github.com/anicoll/unicom/internal/model"
-	"github.com/anicoll/unicom/internal/sqs"
 )
 
 type emailService interface {
 	Send(ctx context.Context, args email.Request) (*string, error)
 }
 
-type sqsService interface {
-	Send(ctx context.Context, args sqs.Request) (*string, error)
+type notificationService interface {
+	Send(ctx context.Context, args model.ResponseChannelRequest) (*string, error)
 }
 
 type postgres interface {
@@ -24,11 +23,11 @@ type postgres interface {
 
 type UnicomActivities struct {
 	emailService emailService
-	sqsService   sqsService
+	sqsService   notificationService
 	database     postgres
 }
 
-func NewActivities(es emailService, sqs sqsService, db postgres) *UnicomActivities {
+func NewActivities(es emailService, sqs, webhook notificationService, db postgres) *UnicomActivities {
 	return &UnicomActivities{
 		emailService: es,
 		sqsService:   sqs,
@@ -40,7 +39,7 @@ func (a *UnicomActivities) SendEmail(ctx context.Context, req email.Request) (*s
 	return a.emailService.Send(ctx, req)
 }
 
-func (a *UnicomActivities) NotifySqs(ctx context.Context, req sqs.Request) (*string, error) {
+func (a *UnicomActivities) NotifySqs(ctx context.Context, req model.ResponseChannelRequest) (*string, error) {
 	return a.sqsService.Send(ctx, req)
 }
 

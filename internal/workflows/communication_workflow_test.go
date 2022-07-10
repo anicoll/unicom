@@ -61,21 +61,24 @@ func (s *UnitTestSuite) Test_ComminucationWorkflow_WithWebhookResponseChannels_S
 	sesMessageId := aws.String(uuid.NewString())
 
 	emailRequest := &email.Request{}
+	err := faker.FakeData(&emailRequest)
+	s.NoError(err)
 
 	webhookResponse := &workflows.ResponseRequest{}
-	err := faker.FakeData(&webhookResponse)
+	err = faker.FakeData(&webhookResponse)
 	s.NoError(err)
 	webhookResponse.Type = model.Webhook
 
 	s.env.OnActivity(activities.SendEmail, mock.Anything, *emailRequest).Times(1).Return(sesMessageId, nil)
 	s.env.OnActivity(activities.UpdateCommunicationStatus, mock.Anything, mock.Anything, model.Success, sesMessageId).Times(1).Return(nil)
-	s.env.OnActivity(activities.NotifyWebhook, mock.Anything).Times(1).Return(nil)
+	s.env.OnActivity(activities.NotifyWebhook, mock.Anything).Times(1).Return(nil, nil)
 	s.env.OnActivity(activities.SaveResponseChannelOutcome, mock.Anything, webhookResponse.ID, *sesMessageId, model.Success).Times(1).Return(nil)
 
 	s.env.ExecuteWorkflow(workflows.CommunicationWorkflow, workflows.Request{
 		EmailRequest:     emailRequest,
 		SleepDuration:    0,
 		ResponseRequests: []*workflows.ResponseRequest{webhookResponse},
+		Domain:           "test-domain",
 	})
 	s.True(s.env.IsWorkflowCompleted())
 	s.NoError(s.env.GetWorkflowError())

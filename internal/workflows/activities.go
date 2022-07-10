@@ -43,7 +43,7 @@ func (a *UnicomActivities) NotifySqs(ctx context.Context, req model.ResponseChan
 	return a.sqsService.Send(ctx, req)
 }
 
-func (a *UnicomActivities) NotifyWebhook(ctx context.Context) error {
+func (a *UnicomActivities) NotifyWebhook(ctx context.Context, req model.ResponseChannelRequest) error {
 	return nil
 }
 

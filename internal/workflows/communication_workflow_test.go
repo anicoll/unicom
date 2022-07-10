@@ -71,7 +71,13 @@ func (s *UnitTestSuite) Test_ComminucationWorkflow_WithWebhookResponseChannels_S
 
 	s.env.OnActivity(activities.SendEmail, mock.Anything, *emailRequest).Times(1).Return(sesMessageId, nil)
 	s.env.OnActivity(activities.UpdateCommunicationStatus, mock.Anything, mock.Anything, model.Success, sesMessageId).Times(1).Return(nil)
-	s.env.OnActivity(activities.NotifyWebhook, mock.Anything).Times(1).Return(nil, nil)
+	s.env.OnActivity(activities.NotifyWebhook, mock.Anything, model.ResponseChannelRequest{
+		Url:          webhookResponse.Url,
+		WorkflowId:   "default-test-workflow-id",
+		Status:       string(workflows.WorkflowActivityComplete),
+		ErrorMessage: nil,
+	},
+	).Times(1).Return(nil)
 	s.env.OnActivity(activities.SaveResponseChannelOutcome, mock.Anything, webhookResponse.ID, *sesMessageId, model.Success).Times(1).Return(nil)
 
 	s.env.ExecuteWorkflow(workflows.CommunicationWorkflow, workflows.Request{

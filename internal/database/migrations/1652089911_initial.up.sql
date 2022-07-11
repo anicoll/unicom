@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS communications (
   external_id TEXT DEFAULT NULL,
   "type" notification_type NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   "status" communication_status DEFAULT 'PENDING',
   PRIMARY KEY (id)
 );
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS response_channels (
   id TEXT NOT NULL,
   communication_id TEXT NOT NULL REFERENCES communications (id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   external_id TEXT,
   "status" response_channel_status NOT NULL DEFAULT 'PENDING',
   "type" response_channel_type NOT NULL,

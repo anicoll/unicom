@@ -6,7 +6,7 @@ import (
 
 type Model struct {
 	CreatedAt time.Time
-	UpdatedAt time.Time
+	SentAt    time.Time
 }
 
 type Status string
@@ -28,6 +28,7 @@ const (
 type Communication struct {
 	Model
 	ID               string
+	ExternalId       *string
 	Domain           string
 	Status           Status
 	Type             NotificationType

@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/anicoll/unicom/cmd/dbinit"
-	"github.com/anicoll/unicom/cmd/migrations"
 	"github.com/anicoll/unicom/cmd/server"
 	"github.com/anicoll/unicom/cmd/worker"
 	"github.com/urfave/cli/v2"
@@ -27,7 +26,6 @@ func main() {
 		Commands: []*cli.Command{
 			server.ServerCommand(),
 			worker.CommunicationWorkerCommand(),
-			migrations.MigrationCommand(),
 			dbinit.DatabaseCreationCommand(),
 		},
 		Flags: []cli.Flag{

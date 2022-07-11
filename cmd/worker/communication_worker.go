@@ -61,6 +61,11 @@ func communicationWorkerAction(args workerArgs) error {
 	if err != nil {
 		return err
 	}
+	migrations := database.NewMigrations(args.DbDsn, database.MigrateUp)
+	err = migrations.Execute()
+	if err != nil {
+		return err
+	}
 	db := database.New(conn)
 
 	awsConfig, err := config.LoadDefaultConfig(ctx, config.WithRegion(args.region))

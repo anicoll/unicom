@@ -22,16 +22,18 @@ type postgres interface {
 }
 
 type UnicomActivities struct {
-	emailService emailService
-	sqsService   notificationService
-	database     postgres
+	emailService   emailService
+	sqsService     notificationService
+	webhookService notificationService
+	database       postgres
 }
 
 func NewActivities(es emailService, sqs, webhook notificationService, db postgres) *UnicomActivities {
 	return &UnicomActivities{
-		emailService: es,
-		sqsService:   sqs,
-		database:     db,
+		emailService:   es,
+		sqsService:     sqs,
+		webhookService: webhook,
+		database:       db,
 	}
 }
 
@@ -43,8 +45,8 @@ func (a *UnicomActivities) NotifySqs(ctx context.Context, req model.ResponseChan
 	return a.sqsService.Send(ctx, req)
 }
 
-func (a *UnicomActivities) NotifyWebhook(ctx context.Context, req model.ResponseChannelRequest) error {
-	return nil
+func (a *UnicomActivities) NotifyWebhook(ctx context.Context, req model.ResponseChannelRequest) (*string, error) {
+	return a.webhookService.Send(ctx, req)
 }
 
 func (a *UnicomActivities) UpdateCommunicationStatus(ctx context.Context, workflowId string, status model.Status, externalId *string) error {

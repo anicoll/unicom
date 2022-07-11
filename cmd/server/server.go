@@ -121,6 +121,12 @@ func run(args serverArgs) error {
 	if err != nil {
 		return err
 	}
+
+	migrations := database.NewMigrations(args.DbDsn, database.MigrateUp)
+	err = migrations.Execute()
+	if err != nil {
+		return err
+	}
 	db := database.New(conn)
 
 	status.AddChecker("database", func(cr *op.CheckResponse) {

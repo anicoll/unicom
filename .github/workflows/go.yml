@@ -39,7 +39,12 @@ jobs:
         run: go build -v ./...
 
       - name: Test
-        run: go test -v ./...
+        run: make test
+
+      - name: Annotate tests
+        uses: guyarb/golang-test-annotations@v0.6.0
+        with:
+          test-results: test.json
 
       - name: Lint
         run: make lint

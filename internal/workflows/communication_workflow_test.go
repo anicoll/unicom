@@ -78,7 +78,7 @@ func (s *UnitTestSuite) Test_ComminucationWorkflow_WithWebhookResponseChannels_S
 		ErrorMessage: nil,
 	},
 	).Times(1).Return(nil, nil)
-	s.env.OnActivity(activities.SaveResponseChannelOutcome, mock.Anything, webhookResponse.ID, *sesMessageId, model.Success).Times(1).Return(nil)
+	s.env.OnActivity(activities.SaveResponseChannelOutcome, mock.Anything, webhookResponse.ID, "", model.Success).Times(1).Return(nil)
 
 	s.env.ExecuteWorkflow(workflows.CommunicationWorkflow, workflows.Request{
 		EmailRequest:     emailRequest,

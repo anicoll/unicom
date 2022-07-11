@@ -57,11 +57,15 @@ func communicationWorkerAction(args workerArgs) error {
 	}
 	defer func() { _ = zapLogger.Sync() }()
 
-	conn, err := pgxpool.Connect(ctx, args.DbDsn)
+	conn, err := pgxpool.Connect(ctx, args.dbDsn)
 	if err != nil {
 		return err
 	}
-	migrations := database.NewMigrations(args.DbDsn, database.MigrateUp)
+	migrationAction := database.MigrateUp
+	if args.migrationAction == "down" {
+		migrationAction = database.MigrateDown
+	}
+	migrations := database.NewMigrations(args.dbDsn, migrationAction)
 	err = migrations.Execute()
 	if err != nil {
 		return err

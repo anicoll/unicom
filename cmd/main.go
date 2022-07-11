@@ -47,6 +47,13 @@ func main() {
 				Required: false,
 				Value:    "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable",
 			},
+			&cli.StringFlag{
+				Name:     "migrate-action",
+				EnvVars:  []string{"MIGRATE_ACTION"},
+				Required: false,
+				Value:    "up",
+				Usage:    "to indicate either up/down for migrations",
+			},
 		},
 	}
 

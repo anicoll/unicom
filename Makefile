@@ -1,8 +1,6 @@
 .PHONY: generate docker-build docker-netrc clean download
 
 CURRENT_DIR = $(notdir $(shell pwd))
-# IMAGE_BASE=github.com/anicoll/${CURRENT_DIR}
-IMAGE_BASE=docker.io/android101/${CURRENT_DIR}
 GIT_REV=$(shell git rev-parse --short HEAD)
 
 build:

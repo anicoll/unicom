@@ -72,7 +72,8 @@ func ServerCommand() *cli.Command {
 				grpcPort:          c.Int("grpc-port"),
 				httpPort:          c.Int("http-port"),
 				opsPort:           c.Int("ops-port"),
-				DbDsn:             c.String("db-dsn"),
+				dbDsn:             c.String("db-dsn"),
+				migrationAction:   c.String("migrate-action"),
 				temporalNamespace: c.String("temporal-namespace"),
 				temporalAddress:   c.String("temporal-server"),
 				name:              c.Command.Name,
@@ -93,7 +94,8 @@ type serverArgs struct {
 	temporalAddress   string
 	temporalNamespace string
 	name              string
-	DbDsn             string
+	dbDsn             string
+	migrationAction   string
 	description       string
 	version           string
 }
@@ -117,7 +119,17 @@ func run(args serverArgs) error {
 	// nolint: errcheck
 	defer logger.Sync()
 
-	conn, err := pgxpool.Connect(ctx, args.DbDsn)
+	conn, err := pgxpool.Connect(ctx, args.dbDsn)
+	if err != nil {
+		return err
+	}
+
+	migrationAction := database.MigrateUp
+	if args.migrationAction == "down" {
+		migrationAction = database.MigrateDown
+	}
+	migrations := database.NewMigrations(args.dbDsn, migrationAction)
+	err = migrations.Execute()
 	if err != nil {
 		return err
 	}

@@ -130,6 +130,17 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 			if err != nil {
 				return err
 			}
+
+			err = workflow.ExecuteActivity(ctx,
+				activities.SaveResponseChannelOutcome,
+				responseRequest.ID,
+				stringFromPtr(sqsMessageId),
+				statusFromError(err),
+			).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+
 		case model.Webhook:
 			err = workflow.ExecuteActivity(ctx,
 				activities.NotifyWebhook,
@@ -144,13 +155,16 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 			if err != nil {
 				return err
 			}
+			err = workflow.ExecuteActivity(ctx,
+				activities.SaveResponseChannelOutcome,
+				responseRequest.ID,
+				"",
+				statusFromError(err),
+			).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
 		}
-		err = workflow.ExecuteActivity(ctx,
-			activities.SaveResponseChannelOutcome,
-			responseRequest.ID,
-			stringFromPtr(messageId),
-			statusFromError(err),
-		).Get(ctx, nil)
 	}
 
 	currentState.Status = WorkflowComplete

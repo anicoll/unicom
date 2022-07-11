@@ -15,7 +15,8 @@ type workerArgs struct {
 	temporalNamespace string
 	owner             string
 	opsPort           int
-	DbDsn             string
+	dbDsn             string
+	migrationAction   string
 	name              string
 	region            string
 	description       string
@@ -51,7 +52,8 @@ func CommunicationWorkerCommand() *cli.Command {
 				temporalAddress:   c.String("temporal-server"),
 				opsPort:           c.Int("ops-port"),
 				region:            c.String("aws-region"),
-				DbDsn:             c.String("db-dsn"),
+				dbDsn:             c.String("db-dsn"),
+				migrationAction:   c.String("migrate-action"),
 				name:              c.Command.Name,
 				description:       c.Command.Description,
 				version:           c.App.Version,

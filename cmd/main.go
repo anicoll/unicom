@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/anicoll/unicom/cmd/dbinit"
-	"github.com/anicoll/unicom/cmd/migrations"
 	"github.com/anicoll/unicom/cmd/server"
 	"github.com/anicoll/unicom/cmd/worker"
 	"github.com/urfave/cli/v2"
@@ -27,7 +26,6 @@ func main() {
 		Commands: []*cli.Command{
 			server.ServerCommand(),
 			worker.CommunicationWorkerCommand(),
-			migrations.MigrationCommand(),
 			dbinit.DatabaseCreationCommand(),
 		},
 		Flags: []cli.Flag{
@@ -48,6 +46,13 @@ func main() {
 				EnvVars:  []string{"DB_DSN"},
 				Required: false,
 				Value:    "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable",
+			},
+			&cli.StringFlag{
+				Name:     "migrate-action",
+				EnvVars:  []string{"MIGRATE_ACTION"},
+				Required: false,
+				Value:    "up",
+				Usage:    "to indicate either up/down for migrations",
 			},
 		},
 	}

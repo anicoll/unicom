@@ -6,16 +6,22 @@ import (
 
 	"github.com/anicoll/unicom/internal/model"
 	"github.com/google/uuid"
+	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
 	_ "github.com/lib/pq"
 )
 
 type Postgres struct {
-	pool *pgxpool.Pool
+	pool pool
 }
 
-func New(pool *pgxpool.Pool) *Postgres {
+type pool interface {
+	Ping(ctx context.Context) error
+	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
+	Exec(ctx context.Context, sql string, arguments ...interface{}) (commandTag pgconn.CommandTag, err error)
+}
+
+func New(pool pool) *Postgres {
 	return &Postgres{
 		pool: pool,
 	}
@@ -56,7 +62,7 @@ func (p *Postgres) CreateCommunication(ctx context.Context, comm *model.Communic
 func (p *Postgres) SetCommunicationStatus(ctx context.Context, workflowId string, status model.Status, externalId *string) error {
 	_, err := p.pool.Exec(ctx,
 		`UPDATE communications
-		 SET "status" = $2, updated_at = $3, external_id = $4
+		 SET "status" = $2, sent_at = $3, external_id = $4
 		 WHERE id = $1`, workflowId, status, time.Now(), externalId)
 	return err
 }
@@ -71,7 +77,7 @@ func (p *Postgres) CreateResponseChannel(ctx context.Context, channel model.Resp
 func (p *Postgres) SetResponseChannelStatus(ctx context.Context, id, externalId string, status model.Status) error {
 	_, err := p.pool.Exec(ctx,
 		`UPDATE response_channels
-		 SET "status" = $2, external_id = $3, updated_at = $4
+		 SET "status" = $2, external_id = $3, sent_at = $4
 		 WHERE id = $1`, id, status, externalId, time.Now())
 	return err
 }

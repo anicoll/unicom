@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UnicomClient interface {
 	SendCommunication(ctx context.Context, in *SendCommunicationRequest, opts ...grpc.CallOption) (*SendResponse, error)
+	StreamCommunication(ctx context.Context, opts ...grpc.CallOption) (Unicom_StreamCommunicationClient, error)
 	GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error)
 }
 
@@ -43,6 +44,37 @@ func (c *unicomClient) SendCommunication(ctx context.Context, in *SendCommunicat
 	return out, nil
 }
 
+func (c *unicomClient) StreamCommunication(ctx context.Context, opts ...grpc.CallOption) (Unicom_StreamCommunicationClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Unicom_ServiceDesc.Streams[0], "/unicom.api.v1.Unicom/StreamCommunication", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &unicomStreamCommunicationClient{stream}
+	return x, nil
+}
+
+type Unicom_StreamCommunicationClient interface {
+	Send(*SendCommunicationRequest) error
+	Recv() (*SendResponse, error)
+	grpc.ClientStream
+}
+
+type unicomStreamCommunicationClient struct {
+	grpc.ClientStream
+}
+
+func (x *unicomStreamCommunicationClient) Send(m *SendCommunicationRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *unicomStreamCommunicationClient) Recv() (*SendResponse, error) {
+	m := new(SendResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *unicomClient) GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error) {
 	out := new(GetStatusResponse)
 	err := c.cc.Invoke(ctx, "/unicom.api.v1.Unicom/GetStatus", in, out, opts...)
@@ -57,6 +89,7 @@ func (c *unicomClient) GetStatus(ctx context.Context, in *GetStatusRequest, opts
 // for forward compatibility
 type UnicomServer interface {
 	SendCommunication(context.Context, *SendCommunicationRequest) (*SendResponse, error)
+	StreamCommunication(Unicom_StreamCommunicationServer) error
 	GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error)
 }
 
@@ -66,6 +99,9 @@ type UnimplementedUnicomServer struct {
 
 func (UnimplementedUnicomServer) SendCommunication(context.Context, *SendCommunicationRequest) (*SendResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCommunication not implemented")
+}
+func (UnimplementedUnicomServer) StreamCommunication(Unicom_StreamCommunicationServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamCommunication not implemented")
 }
 func (UnimplementedUnicomServer) GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStatus not implemented")
@@ -98,6 +134,32 @@ func _Unicom_SendCommunication_Handler(srv interface{}, ctx context.Context, dec
 		return srv.(UnicomServer).SendCommunication(ctx, req.(*SendCommunicationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _Unicom_StreamCommunication_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(UnicomServer).StreamCommunication(&unicomStreamCommunicationServer{stream})
+}
+
+type Unicom_StreamCommunicationServer interface {
+	Send(*SendResponse) error
+	Recv() (*SendCommunicationRequest, error)
+	grpc.ServerStream
+}
+
+type unicomStreamCommunicationServer struct {
+	grpc.ServerStream
+}
+
+func (x *unicomStreamCommunicationServer) Send(m *SendResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *unicomStreamCommunicationServer) Recv() (*SendCommunicationRequest, error) {
+	m := new(SendCommunicationRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func _Unicom_GetStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -134,6 +196,13 @@ var Unicom_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Unicom_GetStatus_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamCommunication",
+			Handler:       _Unicom_StreamCommunication_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "unicom/api/v1/service.proto",
 }

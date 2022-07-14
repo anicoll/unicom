@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"io"
 	"time"
 
 	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
@@ -38,6 +39,10 @@ func New(logger *zap.Logger, tc temporalClient, db postgres) *Server {
 }
 
 func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendResponse, error) {
+	return s.sendCommunication(ctx, req)
+}
+
+func (s *Server) sendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendResponse, error) {
 	emailRequest, err := mapEmailRequestIn(req.GetEmail())
 	if err != nil {
 		s.logger.Error(err.Error(), zap.Error(err))
@@ -79,7 +84,7 @@ func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicatio
 		}
 	}
 
-	workflowId := newWorkflowId()
+	workflowId := uuid.NewString()
 	err = s.db.CreateCommunication(ctx, mapWorkflowRequestToModel(workflowId, workflowRequest))
 	if err != nil {
 		s.logger.Error(err.Error(), zap.Error(err))
@@ -115,6 +120,25 @@ func (s *Server) GetStatus(ctx context.Context, req *pb.GetStatusRequest) (*pb.G
 	}, nil
 }
 
-func newWorkflowId() string {
-	return uuid.NewString()
+func (s *Server) StreamCommunication(stream pb.Unicom_StreamCommunicationServer) error {
+	ctx := stream.Context()
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		response, err := s.sendCommunication(ctx, in)
+		if err != nil {
+			return err
+		}
+		err = stream.Send(response)
+		if err != nil {
+			return err
+		}
+	}
+
 }

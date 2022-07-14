@@ -61,6 +61,8 @@ service Unicom {
       body : "*"
     };
   };
+  rpc StreamCommunication(stream SendCommunicationRequest)
+      returns (stream SendResponse) {};
   rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {
     option (google.api.http) = {
       get : "/unicom/v1/status/{id}"

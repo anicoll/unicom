@@ -5,7 +5,6 @@ import (
 
 	"github.com/OneSignal/onesignal-go-api"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -44,8 +43,7 @@ func (os *Service) Send(ctx context.Context, args Notification) (*string, error)
 	notification.SetIsIos(true)
 	notification.SetIsAndroid(true)
 	notification.SetIsHuawei(true)
-	// notification.SetExternalId(args.IdempotencyKey)
-	notification.SetExternalId(uuid.NewString())
+	notification.SetExternalId(args.IdempotencyKey)
 	notification.SetAppId(os.appId)
 	notification.SetIncludeExternalUserIds([]string{args.ExternalCustomerId})
 	notification.SetChannelForExternalUserIds("push")

@@ -54,7 +54,7 @@ func (c *unicomClient) StreamCommunication(ctx context.Context, opts ...grpc.Cal
 }
 
 type Unicom_StreamCommunicationClient interface {
-	Send(*SendCommunicationRequest) error
+	Send(*StreamCommunicationRequest) error
 	Recv() (*SendResponse, error)
 	grpc.ClientStream
 }
@@ -63,7 +63,7 @@ type unicomStreamCommunicationClient struct {
 	grpc.ClientStream
 }
 
-func (x *unicomStreamCommunicationClient) Send(m *SendCommunicationRequest) error {
+func (x *unicomStreamCommunicationClient) Send(m *StreamCommunicationRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
@@ -142,7 +142,7 @@ func _Unicom_StreamCommunication_Handler(srv interface{}, stream grpc.ServerStre
 
 type Unicom_StreamCommunicationServer interface {
 	Send(*SendResponse) error
-	Recv() (*SendCommunicationRequest, error)
+	Recv() (*StreamCommunicationRequest, error)
 	grpc.ServerStream
 }
 
@@ -154,8 +154,8 @@ func (x *unicomStreamCommunicationServer) Send(m *SendResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *unicomStreamCommunicationServer) Recv() (*SendCommunicationRequest, error) {
-	m := new(SendCommunicationRequest)
+func (x *unicomStreamCommunicationServer) Recv() (*StreamCommunicationRequest, error) {
+	m := new(StreamCommunicationRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}

@@ -38,14 +38,39 @@ message EmailRequest {
   repeated Attachment attachments = 5;
 }
 
+message LanguageContent {
+  string arabic = 1;
+  string english = 2;
+}
+
+message PushRequest {
+  // must be a valid UUID v4
+  string idempotency_key = 1;
+  string external_customer_id = 2;
+  LanguageContent content = 3;
+  LanguageContent heading = 4;
+  LanguageContent sub_title = 5;
+}
+
 message SendCommunicationRequest {
-  EmailRequest email = 1;
-  bool is_async = 2;
+  bool is_async = 1;
   // any point in time in the future.
   // if time has past, will send immediately.
-  google.protobuf.Timestamp send_at = 3;
-  string domain = 4;
-  repeated ResponseChannel response_channels = 5;
+  google.protobuf.Timestamp send_at = 2;
+  string domain = 3;
+  repeated ResponseChannel response_channels = 4;
+  // optional email request
+  EmailRequest email = 5;
+  // optional push request
+  PushRequest push = 6;
+}
+
+message StreamCommunicationRequest {
+  string domain = 1;
+  // optional email request
+  EmailRequest email = 2;
+  // optional push request
+  PushRequest push = 3;
 }
 
 message SendResponse { string id = 1; }
@@ -61,7 +86,7 @@ service Unicom {
       body : "*"
     };
   };
-  rpc StreamCommunication(stream SendCommunicationRequest)
+  rpc StreamCommunication(stream StreamCommunicationRequest)
       returns (stream SendResponse) {};
   rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {
     option (google.api.http) = {

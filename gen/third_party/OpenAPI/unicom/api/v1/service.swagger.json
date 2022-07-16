@@ -153,6 +153,38 @@
         }
       }
     },
+    "v1LanguageContent": {
+      "type": "object",
+      "properties": {
+        "arabic": {
+          "type": "string"
+        },
+        "english": {
+          "type": "string"
+        }
+      }
+    },
+    "v1PushRequest": {
+      "type": "object",
+      "properties": {
+        "idempotencyKey": {
+          "type": "string",
+          "title": "must be a valid UUID v4"
+        },
+        "externalCustomerId": {
+          "type": "string"
+        },
+        "content": {
+          "$ref": "#/definitions/v1LanguageContent"
+        },
+        "heading": {
+          "$ref": "#/definitions/v1LanguageContent"
+        },
+        "subTitle": {
+          "$ref": "#/definitions/v1LanguageContent"
+        }
+      }
+    },
     "v1ResponseChannel": {
       "type": "object",
       "properties": {
@@ -176,9 +208,6 @@
     "v1SendCommunicationRequest": {
       "type": "object",
       "properties": {
-        "email": {
-          "$ref": "#/definitions/v1EmailRequest"
-        },
         "isAsync": {
           "type": "boolean"
         },
@@ -195,6 +224,14 @@
           "items": {
             "$ref": "#/definitions/v1ResponseChannel"
           }
+        },
+        "email": {
+          "$ref": "#/definitions/v1EmailRequest",
+          "title": "optional email request"
+        },
+        "push": {
+          "$ref": "#/definitions/v1PushRequest",
+          "title": "optional push request"
         }
       }
     },

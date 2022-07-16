@@ -5,12 +5,14 @@ import (
 
 	"github.com/anicoll/unicom/internal/email"
 	"github.com/anicoll/unicom/internal/model"
+	"github.com/anicoll/unicom/internal/push"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
 type Request struct {
 	EmailRequest     *email.Request
+	PushRequest      *push.Notification
 	ResponseRequests []*ResponseRequest
 	SleepDuration    time.Duration
 	Domain           string
@@ -111,6 +113,38 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 			}
 		}
 	}
+
+	if request.PushRequest != nil {
+		err = workflow.ExecuteActivity(ctx,
+			activities.SendPush,
+			*request.PushRequest,
+		).Get(ctx, &messageId)
+		if err != nil {
+			logger.Error("Activity failed.", "activities.SendPush", "Error", err)
+			currentState.Status = WorkflowError
+			currentState.Error = err
+			err = workflow.ExecuteActivity(ctx,
+				activities.UpdateCommunicationStatus,
+				info.WorkflowExecution.ID,
+				model.Failed,
+				messageId,
+			).Get(ctx, nil)
+			if err != nil {
+				logger.Error("Activity failed.", "activities.MarkCommunicationAsFailed", "Error", err)
+			}
+			return err
+		} else {
+			err = workflow.ExecuteActivity(ctx,
+				activities.UpdateCommunicationStatus,
+				info.WorkflowExecution.ID,
+				model.Success,
+				messageId,
+			).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	currentState.Status = WorkflowActivityComplete
 
 	for _, responseRequest := range request.ResponseRequests {
@@ -169,7 +203,7 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 
 	currentState.Status = WorkflowComplete
 	logger.Info("SendSyncWorkflow completed.")
-	return nil
+	return err
 }
 
 func statusFromError(err error) model.Status {

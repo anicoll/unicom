@@ -43,13 +43,21 @@ func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicatio
 }
 
 func (s *Server) sendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendResponse, error) {
+	err := s.validateRequest(req)
+	if err != nil {
+		s.logger.Error(err.Error(), zap.Error(err))
+		return nil, err
+	}
 	emailRequest, err := mapEmailRequestIn(req.GetEmail())
 	if err != nil {
 		s.logger.Error(err.Error(), zap.Error(err))
 		return nil, status.Error(codes.InvalidArgument, "unable to map email request")
 	}
+	pushRequest := mapPushNotificationIn(req.GetPush())
+
 	workflowRequest := workflows.Request{
 		EmailRequest:     emailRequest,
+		PushRequest:      pushRequest,
 		SleepDuration:    time.Duration(0),
 		ResponseRequests: make([]*workflows.ResponseRequest, 0, len(req.GetResponseChannels())),
 		Domain:           req.GetDomain(),
@@ -131,7 +139,12 @@ func (s *Server) StreamCommunication(stream pb.Unicom_StreamCommunicationServer)
 			return err
 		}
 
-		response, err := s.sendCommunication(ctx, in)
+		response, err := s.sendCommunication(ctx, &pb.SendCommunicationRequest{
+			IsAsync: false,
+			Domain:  in.GetDomain(),
+			Email:   in.GetEmail(),
+			Push:    in.GetPush(),
+		})
 		if err != nil {
 			return err
 		}
@@ -140,5 +153,14 @@ func (s *Server) StreamCommunication(stream pb.Unicom_StreamCommunicationServer)
 			return err
 		}
 	}
+}
 
+func (s *Server) validateRequest(req *pb.SendCommunicationRequest) error {
+	if req.GetEmail() != nil && req.GetPush() != nil {
+		return status.Error(codes.InvalidArgument, "invalid request for multiple notification types, please only send comms for a single medium")
+	}
+	if req.GetEmail() == nil && req.GetPush() == nil {
+		return status.Error(codes.InvalidArgument, "invalid request must include any request medium")
+	}
+	return nil
 }

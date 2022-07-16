@@ -48,7 +48,7 @@ message PushRequest {
   string external_customer_id = 2;
   LanguageContent content = 3;
   LanguageContent heading = 4;
-  LanguageContent subTitle = 5;
+  LanguageContent sub_title = 5;
 }
 
 message SendCommunicationRequest {

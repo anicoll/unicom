@@ -132,6 +132,7 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 			if err != nil {
 				logger.Error("Activity failed.", "activities.MarkCommunicationAsFailed", "Error", err)
 			}
+			return err
 		} else {
 			err = workflow.ExecuteActivity(ctx,
 				activities.UpdateCommunicationStatus,
@@ -202,7 +203,7 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 
 	currentState.Status = WorkflowComplete
 	logger.Info("SendSyncWorkflow completed.")
-	return nil
+	return err
 }
 
 func statusFromError(err error) model.Status {

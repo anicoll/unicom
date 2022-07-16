@@ -47,8 +47,8 @@ func mapPushNotificationIn(req *pb.PushRequest) *push.Notification {
 
 	if req.GetSubTitle() != nil {
 		notification.SubTitle = &push.LanguageContent{
-			Arabic:  req.GetHeading().GetArabic(),
-			English: req.GetHeading().GetEnglish(),
+			Arabic:  req.GetSubTitle().GetArabic(),
+			English: req.GetSubTitle().GetEnglish(),
 		}
 	}
 
@@ -79,9 +79,13 @@ func mapAttachmentsIn(attachments []*pb.Attachment) ([]email.Attachment, error) 
 }
 
 func mapWorkflowRequestToModel(workflowId string, req workflows.Request) *model.Communication {
+	communicationType := model.Email
+	if req.EmailRequest == nil {
+		communicationType = model.Push
+	}
 	resp := &model.Communication{
 		ID:               workflowId,
-		Type:             model.Email,
+		Type:             communicationType,
 		Domain:           req.Domain,
 		ResponseChannels: make([]*model.ResponseChannel, len(req.ResponseRequests)),
 	}

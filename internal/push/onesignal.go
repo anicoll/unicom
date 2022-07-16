@@ -67,9 +67,9 @@ func (os *Service) Send(ctx context.Context, args Notification) (*string, error)
 		notification.SetSubtitle(*subtitles)
 	}
 
-	appAuth := context.WithValue(ctx, onesignal.AppAuth, os.authKey)
+	authCtx := context.WithValue(ctx, onesignal.AppAuth, os.authKey)
 
-	resp, _, err := os.apiClient.DefaultApi.CreateNotification(appAuth).Notification(notification).Execute()
+	resp, _, err := os.apiClient.DefaultApi.CreateNotification(authCtx).Notification(notification).Execute()
 
 	if err != nil {
 		os.logger.Error("error sending push notification", zap.Error(err))

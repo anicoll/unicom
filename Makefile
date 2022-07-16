@@ -1,4 +1,4 @@
-.PHONY: generate docker-build docker-netrc clean download
+.PHONY: generate docker-build docker-netrc clean download lint lint-ci
 
 CURRENT_DIR = $(notdir $(shell pwd))
 IMAGE_BASE=github.com/anicoll/${CURRENT_DIR}
@@ -9,6 +9,10 @@ build:
 
 lint:
 	golangci-lint run ./...
+
+lint-ci:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
+	golangci-lint run ./cmd/...
 
 format:
 	gofmt -l -w .

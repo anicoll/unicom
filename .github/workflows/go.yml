@@ -47,4 +47,4 @@ jobs:
           test-results: test.json
 
       - name: Lint
-        run: make lint
+        run: make lint-ci

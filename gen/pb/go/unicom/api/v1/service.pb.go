@@ -392,6 +392,7 @@ type PushRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// must be a valid UUID v4
 	IdempotencyKey     string           `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
 	ExternalCustomerId string           `protobuf:"bytes,2,opt,name=external_customer_id,json=externalCustomerId,proto3" json:"external_customer_id,omitempty"`
 	Content            *LanguageContent `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`

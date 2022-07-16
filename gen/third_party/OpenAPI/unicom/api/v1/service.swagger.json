@@ -168,7 +168,8 @@
       "type": "object",
       "properties": {
         "idempotencyKey": {
-          "type": "string"
+          "type": "string",
+          "title": "must be a valid UUID v4"
         },
         "externalCustomerId": {
           "type": "string"

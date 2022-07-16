@@ -44,6 +44,7 @@ message LanguageContent {
 }
 
 message PushRequest {
+  // must be a valid UUID v4
   string idempotency_key = 1;
   string external_customer_id = 2;
   LanguageContent content = 3;

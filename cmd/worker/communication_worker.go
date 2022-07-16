@@ -9,6 +9,7 @@ import (
 
 	"github.com/anicoll/unicom/internal/database"
 	"github.com/anicoll/unicom/internal/email"
+	"github.com/anicoll/unicom/internal/push"
 	"github.com/anicoll/unicom/internal/responsechannel/sqs"
 	"github.com/anicoll/unicom/internal/responsechannel/webhook"
 	"github.com/anicoll/unicom/internal/workflows"
@@ -29,16 +30,17 @@ import (
 
 const CommunicationTaskQueue string = "unicom_task_queue"
 
-func CommunicationWorker(temporalClient client.Client, emailClient *email.Service, sqsClient *sqs.Service, webhookClient *webhook.Service, db *database.Postgres) error {
+func CommunicationWorker(temporalClient client.Client, emailClient *email.Service, pushService *push.Service, sqsClient *sqs.Service, webhookClient *webhook.Service, db *database.Postgres) error {
 	w := worker.New(temporalClient, CommunicationTaskQueue, worker.Options{})
 
 	registerOptions := workflow.RegisterOptions{}
 
-	activities := workflows.NewActivities(emailClient, sqsClient, webhookClient, db)
+	activities := workflows.NewActivities(emailClient, pushService, sqsClient, webhookClient, db)
 
 	w.RegisterWorkflowWithOptions(workflows.CommunicationWorkflow, registerOptions)
 
 	w.RegisterActivityWithOptions(activities.SendEmail, activity.RegisterOptions{})
+	w.RegisterActivityWithOptions(activities.SendPush, activity.RegisterOptions{})
 	w.RegisterActivityWithOptions(activities.NotifySqs, activity.RegisterOptions{})
 	w.RegisterActivityWithOptions(activities.NotifyWebhook, activity.RegisterOptions{})
 
@@ -77,6 +79,8 @@ func communicationWorkerAction(args workerArgs) error {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
 
+	pushService := push.New(zapLogger, args.onesignalAppId, args.onesignalAuthKey)
+
 	// TODO: add status Checkers
 	sqsClient := aws_sqs.NewFromConfig(awsConfig)
 	sqsService := sqs.NewService(sqsClient)
@@ -105,5 +109,5 @@ func communicationWorkerAction(args workerArgs) error {
 	}
 	defer temporalClient.Close()
 
-	return CommunicationWorker(temporalClient, emailService, sqsService, webhookClient, db)
+	return CommunicationWorker(temporalClient, emailService, pushService, sqsService, webhookClient, db)
 }

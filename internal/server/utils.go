@@ -8,6 +8,7 @@ import (
 
 	"github.com/anicoll/unicom/internal/email"
 	"github.com/anicoll/unicom/internal/model"
+	"github.com/anicoll/unicom/internal/push"
 	"github.com/anicoll/unicom/internal/workflows"
 )
 
@@ -28,7 +29,30 @@ func mapEmailRequestIn(req *pb.EmailRequest) (*email.Request, error) {
 		HtmlBody:         req.Html,
 		Attachments:      attachments,
 	}, nil
+}
 
+func mapPushNotificationIn(req *pb.PushRequest) *push.Notification {
+	notification := &push.Notification{
+		IdempotencyKey:     req.GetIdempotencyKey(),
+		ExternalCustomerId: req.GetExternalCustomerId(),
+		Content: push.LanguageContent{
+			Arabic:  req.GetContent().GetArabic(),
+			English: req.GetContent().GetEnglish(),
+		},
+		Heading: push.LanguageContent{
+			Arabic:  req.GetHeading().GetArabic(),
+			English: req.GetHeading().GetEnglish(),
+		},
+	}
+
+	if req.GetSubTitle() != nil {
+		notification.SubTitle = &push.LanguageContent{
+			Arabic:  req.GetHeading().GetArabic(),
+			English: req.GetHeading().GetEnglish(),
+		}
+	}
+
+	return notification
 }
 
 func mapAttachmentsIn(attachments []*pb.Attachment) ([]email.Attachment, error) {

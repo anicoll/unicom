@@ -21,6 +21,8 @@ type workerArgs struct {
 	region            string
 	description       string
 	version           string
+	onesignalAppId    string
+	onesignalAuthKey  string
 }
 
 func CommunicationWorkerCommand() *cli.Command {
@@ -45,6 +47,18 @@ func CommunicationWorkerCommand() *cli.Command {
 				Required: false,
 				Value:    "default",
 			},
+			&cli.StringFlag{
+				Name:     "onesignal-app-id",
+				EnvVars:  []string{"ONESIGNAL_APP_ID"},
+				Required: true,
+				Value:    "",
+			},
+			&cli.StringFlag{
+				Name:     "onesignal-auth-key",
+				EnvVars:  []string{"ONESIGNAL_AUTH_KEY"},
+				Required: true,
+				Value:    "",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			args := workerArgs{
@@ -54,6 +68,8 @@ func CommunicationWorkerCommand() *cli.Command {
 				region:            c.String("aws-region"),
 				dbDsn:             c.String("db-dsn"),
 				migrationAction:   c.String("migrate-action"),
+				onesignalAppId:    c.String("onesignal-app-id"),
+				onesignalAuthKey:  c.String("onesignal-auth-key"),
 				name:              c.Command.Name,
 				description:       c.Command.Description,
 				version:           c.App.Version,

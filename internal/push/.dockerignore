@@ -1,0 +1,6 @@
+cmd/
+gen/
+internal/
+proto/
+go.mod
+go.sum

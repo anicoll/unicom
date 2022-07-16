@@ -2,6 +2,7 @@ package push
 
 import (
 	"context"
+	"errors"
 
 	"github.com/OneSignal/onesignal-go-api"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -11,7 +12,7 @@ import (
 type Service struct {
 	appId     string
 	authKey   string
-	apiClient *onesignal.APIClient
+	apiClient *onesignal.DefaultApiService
 	logger    *zap.Logger
 }
 
@@ -21,7 +22,7 @@ func New(logger *zap.Logger, appId, authKey string) *Service {
 		appId:     appId,
 		authKey:   authKey,
 		logger:    logger,
-		apiClient: onesignal.NewAPIClient(configuration),
+		apiClient: onesignal.NewAPIClient(configuration).DefaultApi,
 	}
 }
 
@@ -38,13 +39,13 @@ type Notification struct {
 	SubTitle           *LanguageContent
 }
 
-func (os *Service) Send(ctx context.Context, args Notification) (*string, error) {
-	notification := *onesignal.NewNotification(os.appId)
+func (s *Service) Send(ctx context.Context, args Notification) (*string, error) {
+	notification := *onesignal.NewNotification(s.appId)
 	notification.SetIsIos(true)
 	notification.SetIsAndroid(true)
 	notification.SetIsHuawei(true)
 	notification.SetExternalId(args.IdempotencyKey)
-	notification.SetAppId(os.appId)
+	notification.SetAppId(s.appId)
 	notification.SetIncludeExternalUserIds([]string{args.ExternalCustomerId})
 	notification.SetChannelForExternalUserIds("push")
 
@@ -65,19 +66,21 @@ func (os *Service) Send(ctx context.Context, args Notification) (*string, error)
 		notification.SetSubtitle(*subtitles)
 	}
 
-	authCtx := context.WithValue(ctx, onesignal.AppAuth, os.authKey)
+	authCtx := context.WithValue(ctx, onesignal.AppAuth, s.authKey)
 
-	resp, _, err := os.apiClient.DefaultApi.CreateNotification(authCtx).Notification(notification).Execute()
+	resp, _, err := s.apiClient.CreateNotification(authCtx).Notification(notification).Execute()
 
 	if err != nil {
-		os.logger.Error("error sending push notification", zap.Error(err))
+		s.logger.Error("error sending push notification", zap.Error(err))
 		return nil, err
 	}
 	if resp.Errors != nil {
 		if resp.Errors.InvalidIdentifierError != nil {
-			os.logger.Error("error sending push notification", zap.Strings("invalidExternalUserIds", resp.Errors.InvalidIdentifierError.InvalidExternalUserIds))
+			s.logger.Error("error sending push notification", zap.Strings("invalidExternalUserIds", resp.Errors.InvalidIdentifierError.InvalidExternalUserIds))
 			return nil, err
 		}
+		s.logger.Error("unknown error sending push notification", zap.Any("errors", resp.Errors))
+		return nil, errors.New("unknown error occured attempting to send communication")
 	}
 	return aws.String(resp.GetId()), nil
 }

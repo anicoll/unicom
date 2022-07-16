@@ -1,4 +1,4 @@
-package webhook
+package responsechannel
 
 import (
 	"bytes"
@@ -13,17 +13,17 @@ import (
 	"github.com/anicoll/unicom/internal/model"
 )
 
-type Service struct {
+type WebhookService struct {
 	client *http.Client
 }
 
-func NewService(client *http.Client) *Service {
-	return &Service{
+func NewWebhookService(client *http.Client) *WebhookService {
+	return &WebhookService{
 		client: client,
 	}
 }
 
-func (s *Service) Send(ctx context.Context, req model.ResponseChannelRequest) (*string, error) {
+func (s *WebhookService) Send(ctx context.Context, req model.ResponseChannelRequest) (*string, error) {
 	data, err := json.Marshal(pb.ResponseEvent{
 		WorkflowId:   req.WorkflowId,
 		Status:       req.Status,

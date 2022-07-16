@@ -48,7 +48,10 @@ func (es *Service) Send(ctx context.Context, args Request) (*string, error) {
 	}
 
 	var emailRaw bytes.Buffer
-	msg.WriteTo(&emailRaw)
+	_, err := msg.WriteTo(&emailRaw)
+	if err != nil {
+		return nil, err
+	}
 
 	output, err := es.sesClient.SendEmail(ctx, &ses.SendEmailInput{
 		Content: &types.EmailContent{

@@ -1,12 +1,12 @@
-package sqs_test
+package responsechannel_test
 
 import (
 	"context"
 	"testing"
 
 	"github.com/anicoll/unicom/internal/model"
-	"github.com/anicoll/unicom/internal/responsechannel/sqs"
-	aws_sqs "github.com/aws/aws-sdk-go-v2/service/sqs"
+	"github.com/anicoll/unicom/internal/responsechannel"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -15,7 +15,7 @@ import (
 
 type ServiceTestSuite struct {
 	suite.Suite
-	svc       *sqs.Service
+	svc       *responsechannel.SQSService
 	sqsClient *mockSqsClient
 }
 
@@ -25,7 +25,7 @@ func TestServiceTestSuite(t *testing.T) {
 
 func (suite *ServiceTestSuite) SetupTest() {
 	suite.sqsClient = &mockSqsClient{}
-	suite.svc = sqs.NewService(suite.sqsClient)
+	suite.svc = responsechannel.NewSQSService(suite.sqsClient)
 }
 
 func (suite *ServiceTestSuite) AfterTest() {
@@ -36,10 +36,12 @@ func (suite *ServiceTestSuite) TestService_SendMessage_Success() {
 	ctx := context.Background()
 
 	req := model.ResponseChannelRequest{}
-	faker.FakeData(&req)
+	err := faker.FakeData(&req)
+	suite.NoError(err)
 
-	expectedResponse := aws_sqs.SendMessageOutput{}
-	faker.FakeData(&expectedResponse)
+	expectedResponse := sqs.SendMessageOutput{}
+	err = faker.FakeData(&expectedResponse)
+	suite.NoError(err)
 
 	suite.sqsClient.On("SendMessage", ctx, mock.Anything, mock.Anything).Return(&expectedResponse, nil)
 

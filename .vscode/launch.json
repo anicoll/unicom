@@ -13,7 +13,7 @@
             "envFile": "${workspaceFolder}/.env",
             "args": [
                 // "server"
-                "send-async-worker"
+                "communication-worker"
             ]
         }
     ]

@@ -1,3 +1,4 @@
+[![Build, test and push container](https://github.com/anicoll/unicom/actions/workflows/default.yml/badge.svg)](https://github.com/anicoll/unicom/actions/workflows/default.yml)
 ## Unicom 
 
 How it all works.

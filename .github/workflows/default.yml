@@ -93,8 +93,6 @@ jobs:
       - name: Set outputs
         id: vars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-      - name: Check outputs
-        run: echo ${{ steps.vars.outputs.sha_short }}
 
       - name: Build
         run: make build-linux
@@ -132,7 +130,5 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ steps.vars.outputs.sha_short }}
-            latest
+          tags: ['${{ steps.vars.outputs.sha_short }}', latest]
           labels: ${{ steps.meta.outputs.labels }}

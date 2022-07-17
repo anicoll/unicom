@@ -58,7 +58,7 @@ jobs:
           version: v1.46.2
 
   push:
-    # if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -130,5 +130,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ['${{ steps.vars.outputs.sha_short }}', latest]
+          tags: |
+            ${{ steps.vars.outputs.sha_short }}
+            latest
           labels: ${{ steps.meta.outputs.labels }}

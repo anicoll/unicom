@@ -3,7 +3,7 @@ name: Build, test and push container
 on:
   push:
     branches: ['main']
-    tags: ['latest', '${{ github.sha }}::7']
+    tags: ['latest', 'v*.*.*']
   pull_request:
     branches: ['main']
 

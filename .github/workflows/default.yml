@@ -6,6 +6,7 @@ on:
     tags: ['latest', 'v*.*.*']
   pull_request:
     branches: ['main']
+    tags: ['latest', 'v*.*.*']
 
 env:
   REGISTRY: ghcr.io

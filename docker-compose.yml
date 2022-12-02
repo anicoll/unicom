@@ -1,30 +1,9 @@
 version: "3.5"
 services:
-  postgres:
-    container_name: postgres
-    image: postgres:alpine
-    restart: always
-    environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
-    ports:
-      - 5432:5432
-  # async-worker:
-  #   container_name: async-worker
-  #   environment:
-  #     TEMPORAL_SERVER: localhost:7233
-  #     AWS_REGION: eu-west-2
-  #   command: send-async-worker
-  #   build: ./
-  #   network_mode: host
-  #   image: unicom:latest
-  # sync-worker:
-  #   container_name: sync-worker
-  #   environment:
-  #     TEMPORAL_SERVER: localhost:7233
-  #     AWS_REGION: eu-west-2
-  #   command: send-sync-worker
-  #   build: ./
-  #   network_mode: host
-  #   image: unicom:latest
+  buf:
+    container_name: buf
+    image: bufbuild/buf
+    working_dir: /workspace
+    command: generate
+    volumes:
+      - ./:/workspace

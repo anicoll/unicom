@@ -50,3 +50,7 @@ docker-push:
 generate:
 	rm -rf gen/
 	buf generate
+
+generate-docker:
+	rm -rf gen/
+	docker compose up

@@ -10,7 +10,6 @@ import (
 
 	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
 	"github.com/anicoll/unicom/internal/database"
-	"github.com/anicoll/unicom/internal/op"
 	"github.com/anicoll/unicom/internal/server"
 	"github.com/anicoll/unicom/internal/temporalclient"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -21,6 +20,7 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
+	"github.com/utilitywarehouse/go-operational/op"
 	zapadapter "logur.dev/adapter/zap"
 
 	"github.com/urfave/cli/v2"

@@ -30,6 +30,8 @@ type Server struct {
 	logger *zap.Logger
 }
 
+var _ pb.UnicomServer = (*Server)(nil)
+
 func New(logger *zap.Logger, tc temporalClient, db postgres) *Server {
 	return &Server{
 		tc:     tc,

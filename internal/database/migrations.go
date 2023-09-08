@@ -16,8 +16,10 @@ var migrations embed.FS
 
 type MigrationAction string
 
-const MigrateUp MigrationAction = "up"
-const MigrateDown MigrationAction = "down"
+const (
+	MigrateUp   MigrationAction = "up"
+	MigrateDown MigrationAction = "down"
+)
 
 type Migration struct {
 	dbUrl  string

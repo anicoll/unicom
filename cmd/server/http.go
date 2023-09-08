@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
 )
 
 func runHTTPGateway(ctx context.Context, httpPort, grpcPort int) error {

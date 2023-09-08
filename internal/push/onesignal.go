@@ -69,7 +69,6 @@ func (s *Service) Send(ctx context.Context, args Notification) (*string, error) 
 	authCtx := context.WithValue(ctx, onesignal.AppAuth, s.authKey)
 
 	resp, _, err := s.apiClient.CreateNotification(authCtx).Notification(notification).Execute()
-
 	if err != nil {
 		s.logger.Error("error sending push notification", zap.Error(err))
 		return nil, err

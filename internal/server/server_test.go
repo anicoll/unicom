@@ -3,10 +3,10 @@ package server_test
 import (
 	"testing"
 
-	"github.com/anicoll/unicom/internal/server"
 	"github.com/stretchr/testify/suite"
-
 	"go.uber.org/zap"
+
+	"github.com/anicoll/unicom/internal/server"
 )
 
 type ServerUnitTestSuite struct {

@@ -4,15 +4,18 @@ import (
 	"context"
 	"time"
 
-	"github.com/anicoll/unicom/internal/model"
 	"github.com/google/uuid"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	_ "github.com/lib/pq"
+	"go.uber.org/zap"
+
+	"github.com/anicoll/unicom/internal/model"
 )
 
 type Postgres struct {
-	pool pool
+	pool   pool
+	logger *zap.Logger
 }
 
 type pool interface {
@@ -21,9 +24,10 @@ type pool interface {
 	Exec(ctx context.Context, sql string, arguments ...interface{}) (commandTag pgconn.CommandTag, err error)
 }
 
-func New(pool pool) *Postgres {
+func New(pool pool, logger *zap.Logger) *Postgres {
 	return &Postgres{
-		pool: pool,
+		pool:   pool,
+		logger: logger,
 	}
 }
 

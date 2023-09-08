@@ -4,14 +4,17 @@ import (
 	"log"
 	"os"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/anicoll/unicom/cmd/dbinit"
 	"github.com/anicoll/unicom/cmd/server"
 	"github.com/anicoll/unicom/cmd/worker"
-	"github.com/urfave/cli/v2"
 )
 
-var version = "development"
-var author = ""
+var (
+	version = "development"
+	author  = ""
+)
 
 func main() {
 	app := &cli.App{

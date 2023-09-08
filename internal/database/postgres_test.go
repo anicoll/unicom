@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/anicoll/unicom/internal/database"
-	"github.com/anicoll/unicom/internal/model"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"go.uber.org/zap"
+
+	"github.com/anicoll/unicom/internal/database"
+	"github.com/anicoll/unicom/internal/model"
 )
 
 type PostgresUnitTestSuite struct {
@@ -56,7 +58,7 @@ func (s *PostgresUnitTestSuite) SetupSuite() {
 	s.conn, err = pgxpool.Connect(s.ctx, s.dbdsn)
 	s.NoError(err)
 
-	s.postgres = database.New(s.conn)
+	s.postgres = database.New(s.conn, zap.NewNop())
 	migrations := database.NewMigrations(s.dbdsn, database.MigrateUp)
 	err = migrations.Execute()
 	s.NoError(err)

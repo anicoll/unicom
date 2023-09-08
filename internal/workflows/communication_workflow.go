@@ -65,7 +65,6 @@ func CommunicationWorkflow(ctx workflow.Context, request Request) error {
 	err := workflow.SetQueryHandler(ctx, queryType, func() (*WorkflowState, error) {
 		return currentState, nil
 	})
-
 	if err != nil {
 		currentState.Status = WorkflowError
 		currentState.Error = err

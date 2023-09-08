@@ -8,10 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
-	"github.com/anicoll/unicom/internal/database"
-	"github.com/anicoll/unicom/internal/server"
-	"github.com/anicoll/unicom/internal/temporalclient"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -20,15 +16,19 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
-	"github.com/utilitywarehouse/go-operational/op"
-	zapadapter "logur.dev/adapter/zap"
-
 	"github.com/urfave/cli/v2"
+	"github.com/utilitywarehouse/go-operational/op"
 	"go.temporal.io/sdk/client"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	zapadapter "logur.dev/adapter/zap"
 	"logur.dev/logur"
+
+	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
+	"github.com/anicoll/unicom/internal/database"
+	"github.com/anicoll/unicom/internal/server"
+	"github.com/anicoll/unicom/internal/temporalclient"
 )
 
 func ServerCommand() *cli.Command {
@@ -133,7 +133,7 @@ func run(args serverArgs) error {
 	if err != nil {
 		return err
 	}
-	db := database.New(conn)
+	db := database.New(conn, logger)
 
 	status.AddChecker("database", func(cr *op.CheckResponse) {
 		if err := db.Ping(ctx); err != nil {

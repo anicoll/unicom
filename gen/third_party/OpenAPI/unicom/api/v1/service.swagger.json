@@ -102,6 +102,7 @@
         "details": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
         }
@@ -140,6 +141,7 @@
         "attachments": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/v1Attachment"
           }
         }
@@ -222,6 +224,7 @@
         "responseChannels": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/v1ResponseChannel"
           }
         },

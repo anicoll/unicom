@@ -3,9 +3,10 @@ package temporalclient
 import (
 	"context"
 
+	"go.temporal.io/sdk/client"
+
 	"github.com/anicoll/unicom/cmd/worker"
 	"github.com/anicoll/unicom/internal/workflows"
-	"go.temporal.io/sdk/client"
 )
 
 type Client struct {

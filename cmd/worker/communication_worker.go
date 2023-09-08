@@ -7,11 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/anicoll/unicom/internal/database"
-	"github.com/anicoll/unicom/internal/email"
-	"github.com/anicoll/unicom/internal/push"
-	"github.com/anicoll/unicom/internal/responsechannel"
-	"github.com/anicoll/unicom/internal/workflows"
 	"github.com/aws/aws-sdk-go-v2/config"
 	ses "github.com/aws/aws-sdk-go-v2/service/sesv2"
 	aws_sqs "github.com/aws/aws-sdk-go-v2/service/sqs"
@@ -25,6 +20,12 @@ import (
 	"go.uber.org/zap"
 	zapadapter "logur.dev/adapter/zap"
 	"logur.dev/logur"
+
+	"github.com/anicoll/unicom/internal/database"
+	"github.com/anicoll/unicom/internal/email"
+	"github.com/anicoll/unicom/internal/push"
+	"github.com/anicoll/unicom/internal/responsechannel"
+	"github.com/anicoll/unicom/internal/workflows"
 )
 
 const CommunicationTaskQueue string = "unicom_task_queue"
@@ -71,7 +72,7 @@ func communicationWorkerAction(args workerArgs) error {
 	if err != nil {
 		return err
 	}
-	db := database.New(conn)
+	db := database.New(conn, zapLogger)
 
 	awsConfig, err := config.LoadDefaultConfig(ctx, config.WithRegion(args.region))
 	if err != nil {

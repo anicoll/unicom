@@ -66,7 +66,6 @@ func initDatabaseAction(args initArgs) error {
 	_, err = conn.Exec(ctx, fmt.Sprintf("GRANT ALL PRIVILEGES ON DATABASE %s TO %s", args.databaseToCreate, args.databaseToCreate))
 	if err != nil {
 		return errors.WithMessage(err, "privileges grant")
-
 	}
 	return nil
 }

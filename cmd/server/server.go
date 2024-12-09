@@ -6,16 +6,12 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/jackc/pgx/v4/pgxpool"
-	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/uber-go/tally/v4"
-	"github.com/uber-go/tally/v4/prometheus"
 	"github.com/urfave/cli/v2"
 	"github.com/utilitywarehouse/go-operational/op"
 	"go.temporal.io/sdk/client"
@@ -201,51 +197,51 @@ func run(args serverArgs) error {
 	return eg.Wait()
 }
 
-// nolint: deadcode, unused
-func newPrometheusScope(c prometheus.Configuration, prefix string) tally.Scope {
-	reporter, err := c.NewReporter(
-		prometheus.ConfigurationOptions{
-			Registry: prom.NewRegistry(),
-			OnError: func(err error) {
-				log.Println("error in prometheus reporter", err)
-			},
-		},
-	)
-	if err != nil {
-		log.Fatalln("error creating prometheus reporter", err)
-	}
-	scopeOpts := tally.ScopeOptions{
-		CachedReporter:  reporter,
-		Separator:       prometheus.DefaultSeparator,
-		SanitizeOptions: &sanitizeOptions,
-		Prefix:          prefix,
-	}
-	scope, _ := tally.NewRootScope(scopeOpts, time.Second)
+// // nolint: deadcode, unused
+// func newPrometheusScope(c prometheus.Configuration, prefix string) tally.Scope {
+// 	reporter, err := c.NewReporter(
+// 		prometheus.ConfigurationOptions{
+// 			Registry: prom.NewRegistry(),
+// 			OnError: func(err error) {
+// 				log.Println("error in prometheus reporter", err)
+// 			},
+// 		},
+// 	)
+// 	if err != nil {
+// 		log.Fatalln("error creating prometheus reporter", err)
+// 	}
+// 	scopeOpts := tally.ScopeOptions{
+// 		CachedReporter:  reporter,
+// 		Separator:       prometheus.DefaultSeparator,
+// 		SanitizeOptions: &sanitizeOptions,
+// 		Prefix:          prefix,
+// 	}
+// 	scope, _ := tally.NewRootScope(scopeOpts, time.Second)
 
-	log.Println("prometheus metrics scope created")
-	return scope
-}
+// 	log.Println("prometheus metrics scope created")
+// 	return scope
+// }
 
 // tally sanitizer options that satisfy Prometheus restrictions.
 // This will rename metrics at the tally emission level, so metrics name we
 // use maybe different from what gets emitted. In the current implementation
 // it will replace - and . with _
-var (
-	safeCharacters = []rune{'_'}
+// var (
+// 	safeCharacters = []rune{'_'}
 
-	sanitizeOptions = tally.SanitizeOptions{
-		NameCharacters: tally.ValidCharacters{
-			Ranges:     tally.AlphanumericRange,
-			Characters: safeCharacters,
-		},
-		KeyCharacters: tally.ValidCharacters{
-			Ranges:     tally.AlphanumericRange,
-			Characters: safeCharacters,
-		},
-		ValueCharacters: tally.ValidCharacters{
-			Ranges:     tally.AlphanumericRange,
-			Characters: safeCharacters,
-		},
-		ReplacementCharacter: tally.DefaultReplacementCharacter,
-	}
-)
+// 	sanitizeOptions = tally.SanitizeOptions{
+// 		NameCharacters: tally.ValidCharacters{
+// 			Ranges:     tally.AlphanumericRange,
+// 			Characters: safeCharacters,
+// 		},
+// 		KeyCharacters: tally.ValidCharacters{
+// 			Ranges:     tally.AlphanumericRange,
+// 			Characters: safeCharacters,
+// 		},
+// 		ValueCharacters: tally.ValidCharacters{
+// 			Ranges:     tally.AlphanumericRange,
+// 			Characters: safeCharacters,
+// 		},
+// 		ReplacementCharacter: tally.DefaultReplacementCharacter,
+// 	}
+// )

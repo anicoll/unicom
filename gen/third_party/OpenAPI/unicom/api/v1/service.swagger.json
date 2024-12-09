@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "Unicom"
+      "name": "UnicomService"
     }
   ],
   "consumes": [
@@ -18,7 +18,7 @@
   "paths": {
     "/unicom/v1/send-communication": {
       "post": {
-        "operationId": "Unicom_SendCommunication",
+        "operationId": "UnicomService_SendCommunication",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -44,13 +44,13 @@
           }
         ],
         "tags": [
-          "Unicom"
+          "UnicomService"
         ]
       }
     },
     "/unicom/v1/status/{id}": {
       "get": {
-        "operationId": "Unicom_GetStatus",
+        "operationId": "UnicomService_GetStatus",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -74,7 +74,7 @@
           }
         ],
         "tags": [
-          "Unicom"
+          "UnicomService"
         ]
       }
     }
@@ -102,6 +102,7 @@
         "details": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
         }
@@ -140,6 +141,7 @@
         "attachments": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/v1Attachment"
           }
         }
@@ -199,11 +201,12 @@
     "v1ResponseSchema": {
       "type": "string",
       "enum": [
-        "HTTP",
-        "SQS",
-        "EVENT_BRIDGE"
+        "RESPONSE_SCHEMA_UNSPECIFIED",
+        "RESPONSE_SCHEMA_HTTP",
+        "RESPONSE_SCHEMA_SQS",
+        "RESPONSE_SCHEMA_EVENT_BRIDGE"
       ],
-      "default": "HTTP"
+      "default": "RESPONSE_SCHEMA_UNSPECIFIED"
     },
     "v1SendCommunicationRequest": {
       "type": "object",
@@ -222,6 +225,7 @@
         "responseChannels": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/v1ResponseChannel"
           }
         },

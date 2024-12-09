@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 
-	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
-	"github.com/anicoll/unicom/internal/model"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
+
+	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
+	"github.com/anicoll/unicom/internal/model"
 )
 
 type sqsClient interface {

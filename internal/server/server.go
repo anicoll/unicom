@@ -5,13 +5,14 @@ import (
 	"io"
 	"time"
 
-	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
-	"github.com/anicoll/unicom/internal/model"
-	"github.com/anicoll/unicom/internal/workflows"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
+	"github.com/anicoll/unicom/internal/model"
+	"github.com/anicoll/unicom/internal/workflows"
 )
 
 type temporalClient interface {
@@ -30,7 +31,7 @@ type Server struct {
 	logger *zap.Logger
 }
 
-var _ pb.UnicomServer = (*Server)(nil)
+var _ pb.UnicomServiceServer = (*Server)(nil)
 
 func New(logger *zap.Logger, tc temporalClient, db postgres) *Server {
 	return &Server{
@@ -67,19 +68,19 @@ func (s *Server) sendCommunication(ctx context.Context, req *pb.SendCommunicatio
 	if req.IsAsync {
 		for _, responseChannal := range req.GetResponseChannels() {
 			switch responseChannal.Schema {
-			case pb.ResponseSchema_HTTP:
+			case pb.ResponseSchema_RESPONSE_SCHEMA_HTTP:
 				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 					Type: model.Webhook,
 					Url:  responseChannal.GetUrl(),
 					ID:   uuid.NewString(),
 				})
-			case pb.ResponseSchema_SQS:
+			case pb.ResponseSchema_RESPONSE_SCHEMA_SQS:
 				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 					Type: model.Sqs,
 					Url:  responseChannal.GetUrl(),
 					ID:   uuid.NewString(),
 				})
-			case pb.ResponseSchema_EVENT_BRIDGE:
+			case pb.ResponseSchema_RESPONSE_SCHEMA_EVENT_BRIDGE:
 				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 					Type: model.EventBridge,
 					Url:  responseChannal.GetUrl(),
@@ -130,7 +131,7 @@ func (s *Server) GetStatus(ctx context.Context, req *pb.GetStatusRequest) (*pb.G
 	}, nil
 }
 
-func (s *Server) StreamCommunication(stream pb.Unicom_StreamCommunicationServer) error {
+func (s *Server) StreamCommunication(stream pb.UnicomService_StreamCommunicationServer) error {
 	ctx := stream.Context()
 	for {
 		in, err := stream.Recv()

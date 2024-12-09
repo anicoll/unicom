@@ -4,13 +4,14 @@ import (
 	"context"
 	"testing"
 
-	"github.com/anicoll/unicom/internal/model"
-	"github.com/anicoll/unicom/internal/responsechannel"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/anicoll/unicom/internal/model"
+	"github.com/anicoll/unicom/internal/responsechannel"
 )
 
 type ServiceTestSuite struct {
@@ -51,5 +52,4 @@ func (suite *ServiceTestSuite) TestService_SendMessage_Success() {
 
 	assert.Equal(expectedResponse.MessageId, resp)
 	assert.NoError(err)
-
 }

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	pb "github.com/anicoll/unicom/gen/pb/go/unicom/api/v1"
@@ -107,5 +107,5 @@ func downloadFile(url string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }

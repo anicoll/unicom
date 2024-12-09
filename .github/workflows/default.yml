@@ -2,9 +2,9 @@ name: Build, test and push container
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
-    branches: ['main']
+    branches: ["main"]
 
 env:
   REGISTRY: ghcr.io
@@ -15,30 +15,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - id: go-cache-paths
-        run: |
-          echo "::set-output name=go-build::$(go env GOCACHE)"
-          echo "::set-output name=go-mod::$(go env GOMODCACHE)"
-
-      - uses: actions/checkout@v3
-      # Cache go build cache, used to speedup go test
-      - name: Go Build Cache
-        uses: actions/cache@v3
+      - uses: actions/checkout@v4
         with:
-          path: ${{ steps.go-cache-paths.outputs.go-build }}
-          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+          fetch-depth: 2
 
-          # Cache go mod cache, used to speedup builds
-      - name: Go Mod Cache
-        uses: actions/cache@v3
+      - uses: actions/setup-go@v5
         with:
-          path: ${{ steps.go-cache-paths.outputs.go-mod }}
-          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.18
+          cache: true
+          go-version-file: go.mod
 
       - name: Build
         run: make build-linux
@@ -52,10 +36,9 @@ jobs:
         run: make test
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6
         with:
-          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-          version: v1.46.2
+          version: v1.60
 
   push:
     if: github.event_name != 'pull_request'
@@ -65,30 +48,14 @@ jobs:
       packages: write
 
     steps:
-      - id: go-cache-paths
-        run: |
-          echo "::set-output name=go-build::$(go env GOCACHE)"
-          echo "::set-output name=go-mod::$(go env GOMODCACHE)"
-
-      - uses: actions/checkout@v3
-      # Cache go build cache, used to speedup go test
-      - name: Go Build Cache
-        uses: actions/cache@v3
+      - uses: actions/checkout@v4
         with:
-          path: ${{ steps.go-cache-paths.outputs.go-build }}
-          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+          fetch-depth: 2
 
-          # Cache go mod cache, used to speedup builds
-      - name: Go Mod Cache
-        uses: actions/cache@v3
+      - uses: actions/setup-go@v5
         with:
-          path: ${{ steps.go-cache-paths.outputs.go-mod }}
-          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.18
+          cache: true
+          go-version-file: go.mod
 
       - name: Set outputs
         id: vars

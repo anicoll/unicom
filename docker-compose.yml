@@ -1,9 +1,7 @@
 version: "3.5"
 services:
-  buf:
-    container_name: buf
-    image: bufbuild/buf
-    working_dir: /workspace
-    command: generate
-    volumes:
-      - ./:/workspace
+  temporalite:
+    image : anzx-docker.artifactory.gcp.anz/lex/temporalio/temporalite:active
+    ports:
+      - 7233:7233
+      - 8233:8233

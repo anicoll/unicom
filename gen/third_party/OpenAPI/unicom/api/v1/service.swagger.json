@@ -201,11 +201,12 @@
     "v1ResponseSchema": {
       "type": "string",
       "enum": [
-        "HTTP",
-        "SQS",
-        "EVENT_BRIDGE"
+        "RESPONSE_SCHEMA_UNSPECIFIED",
+        "RESPONSE_SCHEMA_HTTP",
+        "RESPONSE_SCHEMA_SQS",
+        "RESPONSE_SCHEMA_EVENT_BRIDGE"
       ],
-      "default": "HTTP"
+      "default": "RESPONSE_SCHEMA_UNSPECIFIED"
     },
     "v1SendCommunicationRequest": {
       "type": "object",

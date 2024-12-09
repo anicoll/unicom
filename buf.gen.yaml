@@ -5,6 +5,7 @@ managed:
     default: github.com/anicoll/unicom/gen/pb/go
     except:
       - buf.build/googleapis/googleapis
+      - buf.build/grpc-ecosystem/grpc-gateway
 plugins:
   - plugin: buf.build/protocolbuffers/go:v1.31.0
     out: gen/pb/go

@@ -1,4 +1,3 @@
-
 syntax = "proto3";
 
 package unicom.api.v1;
@@ -14,9 +13,10 @@ message Attachment {
 }
 
 enum ResponseSchema {
-  HTTP = 0;
-  SQS = 1;
-  EVENT_BRIDGE = 2;
+  RESPONSE_SCHEMA_UNSPECIFIED = 0;
+  RESPONSE_SCHEMA_HTTP = 1;
+  RESPONSE_SCHEMA_SQS = 2;
+  RESPONSE_SCHEMA_EVENT_BRIDGE = 3;
 }
 
 message ResponseChannel {
@@ -73,24 +73,28 @@ message StreamCommunicationRequest {
   PushRequest push = 3;
 }
 
-message SendResponse { string id = 1; }
+message SendResponse {
+  string id = 1;
+}
 
-message GetStatusRequest { string id = 1; }
+message GetStatusRequest {
+  string id = 1;
+}
 
-message GetStatusResponse { string status = 1; }
+message GetStatusResponse {
+  string status = 1;
+}
 
 service Unicom {
   rpc SendCommunication(SendCommunicationRequest) returns (SendResponse) {
     option (google.api.http) = {
-      post : "/unicom/v1/send-communication"
-      body : "*"
+      post: "/unicom/v1/send-communication"
+      body: "*"
     };
-  };
-  rpc StreamCommunication(stream StreamCommunicationRequest)
-      returns (stream SendResponse) {};
+  }
+
+  rpc StreamCommunication(stream StreamCommunicationRequest) returns (stream SendResponse) {}
   rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {
-    option (google.api.http) = {
-      get : "/unicom/v1/status/{id}"
-    };
-  };
+    option (google.api.http) = {get: "/unicom/v1/status/{id}"};
+  }
 }

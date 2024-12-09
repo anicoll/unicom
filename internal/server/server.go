@@ -68,19 +68,19 @@ func (s *Server) sendCommunication(ctx context.Context, req *pb.SendCommunicatio
 	if req.IsAsync {
 		for _, responseChannal := range req.GetResponseChannels() {
 			switch responseChannal.Schema {
-			case pb.ResponseSchema_HTTP:
+			case pb.ResponseSchema_RESPONSE_SCHEMA_HTTP:
 				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 					Type: model.Webhook,
 					Url:  responseChannal.GetUrl(),
 					ID:   uuid.NewString(),
 				})
-			case pb.ResponseSchema_SQS:
+			case pb.ResponseSchema_RESPONSE_SCHEMA_SQS:
 				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 					Type: model.Sqs,
 					Url:  responseChannal.GetUrl(),
 					ID:   uuid.NewString(),
 				})
-			case pb.ResponseSchema_EVENT_BRIDGE:
+			case pb.ResponseSchema_RESPONSE_SCHEMA_EVENT_BRIDGE:
 				workflowRequest.ResponseRequests = append(workflowRequest.ResponseRequests, &workflows.ResponseRequest{
 					Type: model.EventBridge,
 					Url:  responseChannal.GetUrl(),

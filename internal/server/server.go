@@ -31,7 +31,7 @@ type Server struct {
 	logger *zap.Logger
 }
 
-var _ pb.UnicomServer = (*Server)(nil)
+var _ pb.UnicomServiceServer = (*Server)(nil)
 
 func New(logger *zap.Logger, tc temporalClient, db postgres) *Server {
 	return &Server{
@@ -131,7 +131,7 @@ func (s *Server) GetStatus(ctx context.Context, req *pb.GetStatusRequest) (*pb.G
 	}, nil
 }
 
-func (s *Server) StreamCommunication(stream pb.Unicom_StreamCommunicationServer) error {
+func (s *Server) StreamCommunication(stream pb.UnicomService_StreamCommunicationServer) error {
 	ctx := stream.Context()
 	for {
 		in, err := stream.Recv()

@@ -182,7 +182,7 @@ func run(args serverArgs) error {
 					grpc_prometheus.UnaryServerInterceptor,
 					grpc_zap.UnaryServerInterceptor(logger),
 				)))
-		pb.RegisterUnicomServer(s, server)
+		pb.RegisterUnicomServiceServer(s, server)
 		logger.Info("serving GRPC", zap.Int("port", args.grpcPort))
 		return s.Serve(lis)
 	})

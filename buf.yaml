@@ -1,10 +1,18 @@
-version: v1
+version: v2
+modules:
+  - path: proto
+    name: buf.build/domain-definitions/proto
+lint:
+  use:
+    - STANDARD
+  except:
+    - FIELD_NOT_REQUIRED
+  disallow_comment_ignores: true
 breaking:
   use:
     - FILE
-lint:
-  use:
-    - DEFAULT
+  except:
+    - EXTENSION_NO_DELETE
+    - FIELD_SAME_DEFAULT
 deps:
   - buf.build/googleapis/googleapis
-  - buf.build/grpc-ecosystem/grpc-gateway

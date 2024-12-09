@@ -15,7 +15,7 @@ import (
 func runHTTPGateway(ctx context.Context, httpPort, grpcPort int) error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err := pb.RegisterUnicomHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%d", grpcPort), opts)
+	err := pb.RegisterUnicomServiceHandlerFromEndpoint(ctx, mux, fmt.Sprintf("localhost:%d", grpcPort), opts)
 	if err != nil {
 		return err
 	}

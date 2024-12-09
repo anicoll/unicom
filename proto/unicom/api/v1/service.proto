@@ -3,7 +3,6 @@ syntax = "proto3";
 package unicom.api.v1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 message Attachment {
@@ -85,7 +84,7 @@ message GetStatusResponse {
   string status = 1;
 }
 
-service Unicom {
+service UnicomService {
   rpc SendCommunication(SendCommunicationRequest) returns (SendResponse) {
     option (google.api.http) = {
       post: "/unicom/v1/send-communication"

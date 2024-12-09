@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "Unicom"
+      "name": "UnicomService"
     }
   ],
   "consumes": [
@@ -18,7 +18,7 @@
   "paths": {
     "/unicom/v1/send-communication": {
       "post": {
-        "operationId": "Unicom_SendCommunication",
+        "operationId": "UnicomService_SendCommunication",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -44,13 +44,13 @@
           }
         ],
         "tags": [
-          "Unicom"
+          "UnicomService"
         ]
       }
     },
     "/unicom/v1/status/{id}": {
       "get": {
-        "operationId": "Unicom_GetStatus",
+        "operationId": "UnicomService_GetStatus",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -74,7 +74,7 @@
           }
         ],
         "tags": [
-          "Unicom"
+          "UnicomService"
         ]
       }
     }

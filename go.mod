@@ -22,7 +22,7 @@ require (
 	github.com/prometheus/client_golang v1.16.0
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.23.0
-	github.com/uber-go/tally/v4 v4.1.7
+	github.com/uber-go/tally/v4 v4.1.16
 	github.com/urfave/cli/v2 v2.25.7
 	github.com/utilitywarehouse/go-operational v0.0.0-20220413104526-79ce40a50281
 	go.temporal.io/sdk v1.24.0

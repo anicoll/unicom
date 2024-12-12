@@ -14,7 +14,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.17.1
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
 	github.com/jackc/pgconn v1.14.3
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/lib/pq v1.10.9
@@ -29,7 +29,7 @@ require (
 	go.temporal.io/sdk/contrib/tally v0.2.0
 	go.uber.org/zap v1.25.0
 	golang.org/x/sync v0.10.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1
+	google.golang.org/genproto/googleapis/api v0.0.0-20241118233622-e639e219e697
 	google.golang.org/grpc v1.68.1
 	google.golang.org/protobuf v1.35.2
 	logur.dev/adapter/zap v0.5.0
@@ -107,7 +107,7 @@ require (
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.32.0 // indirect
-	golang.org/x/oauth2 v0.23.0 // indirect
+	golang.org/x/oauth2 v0.24.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.3.0 // indirect

@@ -27,7 +27,7 @@ require (
 	github.com/utilitywarehouse/go-operational v0.0.0-20220413104526-79ce40a50281
 	go.temporal.io/sdk v1.31.0
 	go.temporal.io/sdk/contrib/tally v0.2.0
-	go.uber.org/zap v1.25.0
+	go.uber.org/zap v1.27.0
 	golang.org/x/sync v0.10.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241118233622-e639e219e697
 	google.golang.org/grpc v1.68.1

@@ -20,7 +20,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.20.5
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.23.0
 	github.com/uber-go/tally/v4 v4.1.16
 	github.com/urfave/cli/v2 v2.25.7

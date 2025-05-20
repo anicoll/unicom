@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type initArgs struct {
@@ -23,21 +23,21 @@ func DatabaseCreationCommand() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "database-to-create",
-				EnvVars:  []string{"DATABASE_TO_CREATE"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("DATABASE_TO_CREATE")),
 				Required: true,
 				Value:    "",
 				Usage:    "database to create in DB",
 			},
 			&cli.StringFlag{
 				Name:     "password-for-database",
-				EnvVars:  []string{"PASSWORD_FOR_DATABASE"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("PASSWORD_FOR_DATABASE")),
 				Required: true,
 				Value:    "",
 				Usage:    "Password to use to create database tables",
 			},
 		},
 
-		Action: func(c *cli.Context) error {
+		Action: func(ctx context.Context, c *cli.Command) error {
 			args := initArgs{
 				databaseToCreate:    c.String("database-to-create"),
 				passwordForDatabase: c.String("password-for-database"),
@@ -50,7 +50,11 @@ func DatabaseCreationCommand() *cli.Command {
 
 func initDatabaseAction(args initArgs) error {
 	ctx := context.Background()
-	conn, err := pgxpool.Connect(ctx, args.dbDsn)
+	parsedCfg, err := pgxpool.ParseConfig(args.dbDsn)
+	if err != nil {
+		return err
+	}
+	conn, err := pgxpool.NewWithConfig(ctx, parsedCfg)
 	if err != nil {
 		return err
 	}

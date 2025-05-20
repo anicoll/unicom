@@ -7,12 +7,10 @@ import (
 	"net"
 	"net/http"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/urfave/cli/v2"
+	"github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/urfave/cli/v3"
 	"github.com/utilitywarehouse/go-operational/op"
 	"go.temporal.io/sdk/client"
 	"go.uber.org/zap"
@@ -34,36 +32,36 @@ func ServerCommand() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:     "http-port",
-				EnvVars:  []string{"HTTP_PORT"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("HTTP_PORT")),
 				Required: false,
 				Value:    8080,
 			},
 			&cli.IntFlag{
 				Name:     "grpc-port",
-				EnvVars:  []string{"GRPC_PORT"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("GRPC_PORT")),
 				Required: false,
 				Value:    8090,
 			},
 			&cli.StringFlag{
 				Name:     "aws-region",
-				EnvVars:  []string{"AWS_REGION"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("AWS_REGION")),
 				Required: false,
 				Value:    "eu-west-2",
 			},
 			&cli.StringFlag{
 				Name:     "temporal-server",
-				EnvVars:  []string{"TEMPORAL_SERVER"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("TEMPORAL_SERVER")),
 				Required: true,
 				Value:    "localhost:7233",
 			},
 			&cli.StringFlag{
 				Name:     "temporal-namespace",
-				EnvVars:  []string{"TEMPORAL_NAMESPACE"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("TEMPORAL_NAMESPACE")),
 				Required: false,
 				Value:    "default",
 			},
 		},
-		Action: func(c *cli.Context) error {
+		Action: func(ctx context.Context, c *cli.Command) error {
 			args := serverArgs{
 				grpcPort:          c.Int("grpc-port"),
 				httpPort:          c.Int("http-port"),
@@ -72,10 +70,10 @@ func ServerCommand() *cli.Command {
 				migrationAction:   c.String("migrate-action"),
 				temporalNamespace: c.String("temporal-namespace"),
 				temporalAddress:   c.String("temporal-server"),
-				name:              c.Command.Name,
-				description:       c.Command.Description,
-				version:           c.App.Version,
-				owner:             c.App.Authors[0].Name,
+				name:              c.Name,
+				description:       c.Description,
+				version:           c.Version,
+				owner:             c.Authors[0].(string),
 			}
 			return run(args)
 		},
@@ -115,7 +113,11 @@ func run(args serverArgs) error {
 	// nolint: errcheck
 	defer logger.Sync()
 
-	conn, err := pgxpool.Connect(ctx, args.dbDsn)
+	parsedCfg, err := pgxpool.ParseConfig(args.dbDsn)
+	if err != nil {
+		return err
+	}
+	conn, err := pgxpool.NewWithConfig(ctx, parsedCfg)
 	if err != nil {
 		return err
 	}
@@ -129,6 +131,7 @@ func run(args serverArgs) error {
 	if err != nil {
 		return err
 	}
+
 	db := database.New(conn, logger)
 
 	status.AddChecker("database", func(cr *op.CheckResponse) {
@@ -171,13 +174,16 @@ func run(args serverArgs) error {
 			log.Fatalf("failed to listen: %v", err)
 		}
 
+		opts := []logging.Option{
+			logging.WithLogOnEvents(logging.StartCall, logging.FinishCall),
+			// Add any other option (check functions starting with logging.With).
+		}
+
 		s := grpc.NewServer(
-			grpc.UnaryInterceptor(
-				grpc_middleware.ChainUnaryServer(
-					grpc_ctxtags.UnaryServerInterceptor(),
-					grpc_prometheus.UnaryServerInterceptor,
-					grpc_zap.UnaryServerInterceptor(logger),
-				)))
+			grpc.ChainUnaryInterceptor(
+				logging.UnaryServerInterceptor(InterceptorLogger(logger), opts...),
+				prometheus.NewServerMetrics().UnaryServerInterceptor(),
+			))
 		pb.RegisterUnicomServiceServer(s, server)
 		logger.Info("serving GRPC", zap.Int("port", args.grpcPort))
 		return s.Serve(lis)
@@ -196,52 +202,3 @@ func run(args serverArgs) error {
 
 	return eg.Wait()
 }
-
-// // nolint: deadcode, unused
-// func newPrometheusScope(c prometheus.Configuration, prefix string) tally.Scope {
-// 	reporter, err := c.NewReporter(
-// 		prometheus.ConfigurationOptions{
-// 			Registry: prom.NewRegistry(),
-// 			OnError: func(err error) {
-// 				log.Println("error in prometheus reporter", err)
-// 			},
-// 		},
-// 	)
-// 	if err != nil {
-// 		log.Fatalln("error creating prometheus reporter", err)
-// 	}
-// 	scopeOpts := tally.ScopeOptions{
-// 		CachedReporter:  reporter,
-// 		Separator:       prometheus.DefaultSeparator,
-// 		SanitizeOptions: &sanitizeOptions,
-// 		Prefix:          prefix,
-// 	}
-// 	scope, _ := tally.NewRootScope(scopeOpts, time.Second)
-
-// 	log.Println("prometheus metrics scope created")
-// 	return scope
-// }
-
-// tally sanitizer options that satisfy Prometheus restrictions.
-// This will rename metrics at the tally emission level, so metrics name we
-// use maybe different from what gets emitted. In the current implementation
-// it will replace - and . with _
-// var (
-// 	safeCharacters = []rune{'_'}
-
-// 	sanitizeOptions = tally.SanitizeOptions{
-// 		NameCharacters: tally.ValidCharacters{
-// 			Ranges:     tally.AlphanumericRange,
-// 			Characters: safeCharacters,
-// 		},
-// 		KeyCharacters: tally.ValidCharacters{
-// 			Ranges:     tally.AlphanumericRange,
-// 			Characters: safeCharacters,
-// 		},
-// 		ValueCharacters: tally.ValidCharacters{
-// 			Ranges:     tally.AlphanumericRange,
-// 			Characters: safeCharacters,
-// 		},
-// 		ReplacementCharacter: tally.DefaultReplacementCharacter,
-// 	}
-// )

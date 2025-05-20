@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	ses "github.com/aws/aws-sdk-go-v2/service/sesv2"
 	aws_sqs "github.com/aws/aws-sdk-go-v2/service/sqs"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/uber-go/tally/v4/prometheus"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/client"
@@ -59,10 +59,15 @@ func communicationWorkerAction(args workerArgs) error {
 	}
 	defer func() { _ = zapLogger.Sync() }()
 
-	conn, err := pgxpool.Connect(ctx, args.dbDsn)
+	parsedCfg, err := pgxpool.ParseConfig(args.dbDsn)
 	if err != nil {
 		return err
 	}
+	conn, err := pgxpool.NewWithConfig(ctx, parsedCfg)
+	if err != nil {
+		return err
+	}
+
 	migrationAction := database.MigrateUp
 	if args.migrationAction == "down" {
 		migrationAction = database.MigrateDown

@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/anicoll/unicom/cmd/dbinit"
 	"github.com/anicoll/unicom/cmd/server"
@@ -17,15 +18,11 @@ var (
 )
 
 func main() {
-	app := &cli.App{
+	app := &cli.Command{
 		Name:    "unicom-public-api-service",
 		Usage:   "exposes a 'public' api to other domains",
 		Version: version,
-		Authors: []*cli.Author{
-			{
-				Name: author,
-			},
-		},
+		Authors: []any{author},
 		Commands: []*cli.Command{
 			server.ServerCommand(),
 			worker.CommunicationWorkerCommand(),
@@ -34,33 +31,33 @@ func main() {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "log-level",
-				EnvVars:  []string{"LOG_LEVEL"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("LOG_LEVEL")),
 				Required: false,
 				Value:    "DEBUG",
 			},
 			&cli.IntFlag{
 				Name:     "ops-port",
-				EnvVars:  []string{"OPS_PORT"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("OPS_PORT")),
 				Required: false,
 				Value:    8081,
 			},
 			&cli.StringFlag{
 				Name:     "db-dsn",
-				EnvVars:  []string{"DB_DSN"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("DB_DSN")),
 				Required: false,
 				Value:    "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable",
 			},
 			&cli.StringFlag{
 				Name:     "migrate-action",
-				EnvVars:  []string{"MIGRATE_ACTION"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("MIGRATE_ACTION")),
 				Required: false,
 				Value:    "up",
 				Usage:    "to indicate either up/down for migrations",
 			},
 		},
 	}
-
-	err := app.Run(os.Args)
+	ctx := context.Background()
+	err := app.Run(ctx, os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}

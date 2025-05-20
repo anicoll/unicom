@@ -11,7 +11,8 @@ lint:
 	golangci-lint run ./...
 
 lint-ci:
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.1.6
+	golangci-lint --version
 	golangci-lint run ./cmd/...
 
 format:

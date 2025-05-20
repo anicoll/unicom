@@ -23,7 +23,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.34.0
 	github.com/uber-go/tally/v4 v4.1.17
-	github.com/urfave/cli/v2 v2.27.5
+	github.com/urfave/cli/v2 v2.27.6
 	github.com/utilitywarehouse/go-operational v0.0.0-20220413104526-79ce40a50281
 	go.temporal.io/sdk v1.31.0
 	go.temporal.io/sdk/contrib/tally v0.2.0

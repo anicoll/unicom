@@ -31,10 +31,14 @@ download:
 	go mod download
 
 mockery-install: 
-	mkdir -p ./bin
-	curl -L https://github.com/vektra/mockery/releases/download/v3.2.5/mockery_3.2.5_Linux_x86_64.tar.gz | tar -xz -C ./bin
-	rm ./bin/LICENSE
-	rm ./bin/README.md
+	if [ ! -f ./bin/mockery ]; then \
+		mkdir -p ./bin; \
+		curl -L https://github.com/vektra/mockery/releases/download/v3.2.5/mockery_3.2.5_Linux_x86_64.tar.gz | tar -xz -C ./bin; \
+		rm ./bin/LICENSE; \
+		rm ./bin/README.md; \
+	else \
+		echo "mockery already installed."; \
+	fi
 
 clean:
 	rm main
@@ -54,9 +58,10 @@ docker-push-amd: docker-build-amd64 docker-push
 docker-push:
 	docker push -a ${IMAGE_BASE}
 
-generate:
+generate: mockery-install
 	rm -rf gen/
 	buf generate
+	./bin/mockery
 
 generate-docker:
 	rm -rf gen/

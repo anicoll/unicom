@@ -17,3 +17,6 @@ packages:
   github.com/anicoll/unicom/internal/responsechannel:
     config:
       all: true
+  github.com/anicoll/unicom/internal/push:
+    config:
+      all: true

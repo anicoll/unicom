@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -53,9 +53,13 @@ func (s *PostgresUnitTestSuite) SetupSuite() {
 
 	containerEndpoint, err := s.postgresContainer.Endpoint(s.ctx, "")
 	s.NoError(err)
+
 	s.dbdsn = fmt.Sprintf("postgres://postgres:postgres@%s/postgres?sslmode=disable", containerEndpoint)
 
-	s.conn, err = pgxpool.Connect(s.ctx, s.dbdsn)
+	parsedCfg, err := pgxpool.ParseConfig(s.dbdsn)
+	s.NoError(err)
+
+	s.conn, err = pgxpool.NewWithConfig(s.ctx, parsedCfg)
 	s.NoError(err)
 
 	s.postgres = database.New(s.conn, zap.NewNop())

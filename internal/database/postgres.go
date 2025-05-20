@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 
@@ -21,7 +21,7 @@ type Postgres struct {
 type pool interface {
 	Ping(ctx context.Context) error
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
-	Exec(ctx context.Context, sql string, arguments ...interface{}) (commandTag pgconn.CommandTag, err error)
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
 }
 
 func New(pool pool, logger *zap.Logger) *Postgres {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/OneSignal/onesignal-go-api"
+	"github.com/OneSignal/onesignal-go-api/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"go.uber.org/zap"
 )

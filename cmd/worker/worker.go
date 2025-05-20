@@ -1,13 +1,14 @@
 package worker
 
 import (
+	"context"
 	"log"
 	"time"
 
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/uber-go/tally/v4"
 	"github.com/uber-go/tally/v4/prometheus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type workerArgs struct {
@@ -31,36 +32,36 @@ func CommunicationWorkerCommand() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "aws-region",
-				EnvVars:  []string{"AWS_REGION"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("AWS_REGION")),
 				Required: false,
 				Value:    "eu-west-2",
 			},
 			&cli.StringFlag{
 				Name:     "temporal-server",
-				EnvVars:  []string{"TEMPORAL_SERVER"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("TEMPORAL_SERVER")),
 				Required: true,
 				Value:    "localhost:7233",
 			},
 			&cli.StringFlag{
 				Name:     "temporal-namespace",
-				EnvVars:  []string{"TEMPORAL_NAMESPACE"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("TEMPORAL_NAMESPACE")),
 				Required: false,
 				Value:    "default",
 			},
 			&cli.StringFlag{
 				Name:     "onesignal-app-id",
-				EnvVars:  []string{"ONESIGNAL_APP_ID"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("ONESIGNAL_APP_ID")),
 				Required: true,
 				Value:    "",
 			},
 			&cli.StringFlag{
 				Name:     "onesignal-auth-key",
-				EnvVars:  []string{"ONESIGNAL_AUTH_KEY"},
+				Sources:  cli.NewValueSourceChain(cli.EnvVar("ONESIGNAL_AUTH_KEY")),
 				Required: true,
 				Value:    "",
 			},
 		},
-		Action: func(c *cli.Context) error {
+		Action: func(ctx context.Context, c *cli.Command) error {
 			args := workerArgs{
 				temporalNamespace: c.String("temporal-namespace"),
 				temporalAddress:   c.String("temporal-server"),
@@ -70,10 +71,10 @@ func CommunicationWorkerCommand() *cli.Command {
 				migrationAction:   c.String("migrate-action"),
 				onesignalAppId:    c.String("onesignal-app-id"),
 				onesignalAuthKey:  c.String("onesignal-auth-key"),
-				name:              c.Command.Name,
-				description:       c.Command.Description,
-				version:           c.App.Version,
-				owner:             c.App.Authors[0].Name,
+				name:              c.Name,
+				description:       c.Description,
+				version:           c.Version,
+				owner:             c.Authors[0].(string),
 			}
 			return communicationWorkerAction(args)
 		},

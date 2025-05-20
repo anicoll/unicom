@@ -43,7 +43,7 @@ func (s *WebhookService) Send(ctx context.Context, req model.ResponseChannelRequ
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	if response.StatusCode >= 200 && response.StatusCode < 300 {
 		return nil, nil

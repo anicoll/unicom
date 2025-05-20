@@ -87,7 +87,7 @@ func (w *messageWriter) createPart(h map[string][]string) {
 
 func (w *messageWriter) closeMultipart() {
 	if w.depth > 0 {
-		w.writers[w.depth-1].Close()
+		_ = w.writers[w.depth-1].Close()
 		w.depth--
 	}
 }
@@ -254,16 +254,17 @@ func (w *messageWriter) writeBody(f func(io.Writer) error, enc Encoding) {
 		subWriter = w.partWriter
 	}
 
-	if enc == Base64 {
+	switch enc {
+	case Base64:
 		wc := base64.NewEncoder(base64.StdEncoding, newBase64LineWriter(subWriter))
 		w.err = f(wc)
-		wc.Close()
-	} else if enc == Unencoded {
+		_ = wc.Close()
+	case Unencoded:
 		w.err = f(subWriter)
-	} else {
+	default:
 		wc := newQPWriter(subWriter)
 		w.err = f(wc)
-		wc.Close()
+		_ = wc.Close()
 	}
 }
 

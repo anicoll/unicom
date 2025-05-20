@@ -1,4 +1,4 @@
-FROM golang:1.23.4-alpine as BUILDER
+FROM golang:1.24.3-alpine as BUILDER
 RUN apk add --no-cache make git ca-certificates
 
 FROM scratch as RUNNER

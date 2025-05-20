@@ -12,13 +12,15 @@ import (
 	"time"
 )
 
-// WriteTo implements io.WriterTo. It dumps the whole message into w.
+// WriteTo writes the entire email message to the provided io.Writer in MIME format.
+// It implements the io.WriterTo interface. Returns the number of bytes written and any error encountered.
 func (m *Message) WriteTo(w io.Writer) (int64, error) {
 	mw := &messageWriter{w: w}
 	mw.writeMessage(m)
 	return mw.n, mw.err
 }
 
+// writeMessage writes the provided Message to the underlying writer in MIME format.
 func (w *messageWriter) writeMessage(m *Message) {
 	if _, ok := m.header["Mime-Version"]; !ok {
 		w.writeString("Mime-Version: 1.0\r\n")
@@ -65,6 +67,7 @@ type messageWriter struct {
 	err        error
 }
 
+// openMultipart opens a new multipart section with the specified MIME type.
 func (w *messageWriter) openMultipart(mimeType string) {
 	mw := multipart.NewWriter(w)
 	contentType := "multipart/" + mimeType + ";\r\n boundary=" + mw.Boundary()
@@ -81,10 +84,12 @@ func (w *messageWriter) openMultipart(mimeType string) {
 	w.depth++
 }
 
+// createPart creates a new MIME part with the provided headers.
 func (w *messageWriter) createPart(h map[string][]string) {
 	w.partWriter, w.err = w.writers[w.depth-1].CreatePart(h)
 }
 
+// closeMultipart closes the current multipart section.
 func (w *messageWriter) closeMultipart() {
 	if w.depth > 0 {
 		_ = w.writers[w.depth-1].Close()
@@ -92,6 +97,7 @@ func (w *messageWriter) closeMultipart() {
 	}
 }
 
+// writePart writes a single part with the specified charset.
 func (w *messageWriter) writePart(p *part, charset string) {
 	w.writeHeaders(map[string][]string{
 		"Content-Type":              {p.contentType + "; charset=" + charset},
@@ -100,6 +106,7 @@ func (w *messageWriter) writePart(p *part, charset string) {
 	w.writeBody(p.copier, p.encoding)
 }
 
+// addFiles adds the provided files as attachments or inline parts.
 func (w *messageWriter) addFiles(files []*file, isAttachment bool) {
 	for _, f := range files {
 		if _, ok := f.Header["Content-Type"]; !ok {
@@ -141,6 +148,7 @@ func (w *messageWriter) addFiles(files []*file, isAttachment bool) {
 	}
 }
 
+// Write writes bytes to the underlying writer, tracking errors and byte count.
 func (w *messageWriter) Write(p []byte) (int, error) {
 	if w.err != nil {
 		return 0, errors.New("gomail: cannot write as writer is in error")
@@ -152,11 +160,13 @@ func (w *messageWriter) Write(p []byte) (int, error) {
 	return n, w.err
 }
 
+// writeString writes a string to the underlying writer.
 func (w *messageWriter) writeString(s string) {
 	n, _ := io.WriteString(w.w, s)
 	w.n += int64(n)
 }
 
+// writeHeader writes a single header field with the provided key and values.
 func (w *messageWriter) writeHeader(k string, v ...string) {
 	w.writeString(k)
 	if len(v) == 0 {

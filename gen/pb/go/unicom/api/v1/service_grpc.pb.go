@@ -28,8 +28,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UnicomServiceClient interface {
-	SendCommunication(ctx context.Context, in *SendCommunicationRequest, opts ...grpc.CallOption) (*SendResponse, error)
-	StreamCommunication(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCommunicationRequest, SendResponse], error)
+	SendCommunication(ctx context.Context, in *SendCommunicationRequest, opts ...grpc.CallOption) (*SendCommunicationResponse, error)
+	StreamCommunication(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCommunicationRequest, StreamCommunicationResponse], error)
 	GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error)
 }
 
@@ -41,9 +41,9 @@ func NewUnicomServiceClient(cc grpc.ClientConnInterface) UnicomServiceClient {
 	return &unicomServiceClient{cc}
 }
 
-func (c *unicomServiceClient) SendCommunication(ctx context.Context, in *SendCommunicationRequest, opts ...grpc.CallOption) (*SendResponse, error) {
+func (c *unicomServiceClient) SendCommunication(ctx context.Context, in *SendCommunicationRequest, opts ...grpc.CallOption) (*SendCommunicationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SendResponse)
+	out := new(SendCommunicationResponse)
 	err := c.cc.Invoke(ctx, UnicomService_SendCommunication_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -51,18 +51,18 @@ func (c *unicomServiceClient) SendCommunication(ctx context.Context, in *SendCom
 	return out, nil
 }
 
-func (c *unicomServiceClient) StreamCommunication(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCommunicationRequest, SendResponse], error) {
+func (c *unicomServiceClient) StreamCommunication(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCommunicationRequest, StreamCommunicationResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &UnicomService_ServiceDesc.Streams[0], UnicomService_StreamCommunication_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[StreamCommunicationRequest, SendResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[StreamCommunicationRequest, StreamCommunicationResponse]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type UnicomService_StreamCommunicationClient = grpc.BidiStreamingClient[StreamCommunicationRequest, SendResponse]
+type UnicomService_StreamCommunicationClient = grpc.BidiStreamingClient[StreamCommunicationRequest, StreamCommunicationResponse]
 
 func (c *unicomServiceClient) GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -78,8 +78,8 @@ func (c *unicomServiceClient) GetStatus(ctx context.Context, in *GetStatusReques
 // All implementations should embed UnimplementedUnicomServiceServer
 // for forward compatibility.
 type UnicomServiceServer interface {
-	SendCommunication(context.Context, *SendCommunicationRequest) (*SendResponse, error)
-	StreamCommunication(grpc.BidiStreamingServer[StreamCommunicationRequest, SendResponse]) error
+	SendCommunication(context.Context, *SendCommunicationRequest) (*SendCommunicationResponse, error)
+	StreamCommunication(grpc.BidiStreamingServer[StreamCommunicationRequest, StreamCommunicationResponse]) error
 	GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error)
 }
 
@@ -90,10 +90,10 @@ type UnicomServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedUnicomServiceServer struct{}
 
-func (UnimplementedUnicomServiceServer) SendCommunication(context.Context, *SendCommunicationRequest) (*SendResponse, error) {
+func (UnimplementedUnicomServiceServer) SendCommunication(context.Context, *SendCommunicationRequest) (*SendCommunicationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCommunication not implemented")
 }
-func (UnimplementedUnicomServiceServer) StreamCommunication(grpc.BidiStreamingServer[StreamCommunicationRequest, SendResponse]) error {
+func (UnimplementedUnicomServiceServer) StreamCommunication(grpc.BidiStreamingServer[StreamCommunicationRequest, StreamCommunicationResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamCommunication not implemented")
 }
 func (UnimplementedUnicomServiceServer) GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error) {
@@ -138,11 +138,11 @@ func _UnicomService_SendCommunication_Handler(srv interface{}, ctx context.Conte
 }
 
 func _UnicomService_StreamCommunication_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(UnicomServiceServer).StreamCommunication(&grpc.GenericServerStream[StreamCommunicationRequest, SendResponse]{ServerStream: stream})
+	return srv.(UnicomServiceServer).StreamCommunication(&grpc.GenericServerStream[StreamCommunicationRequest, StreamCommunicationResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type UnicomService_StreamCommunicationServer = grpc.BidiStreamingServer[StreamCommunicationRequest, SendResponse]
+type UnicomService_StreamCommunicationServer = grpc.BidiStreamingServer[StreamCommunicationRequest, StreamCommunicationResponse]
 
 func _UnicomService_GetStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetStatusRequest)

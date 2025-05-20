@@ -23,7 +23,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1SendResponse"
+              "$ref": "#/definitions/v1SendCommunicationResponse"
             }
           },
           "default": {
@@ -239,7 +239,15 @@
         }
       }
     },
-    "v1SendResponse": {
+    "v1SendCommunicationResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1StreamCommunicationResponse": {
       "type": "object",
       "properties": {
         "id": {

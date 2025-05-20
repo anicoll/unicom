@@ -30,6 +30,12 @@ build-linux-arm:
 download:
 	go mod download
 
+mockery-install: 
+	mkdir -p ./bin
+	curl -L https://github.com/vektra/mockery/releases/download/v3.2.5/mockery_3.2.5_Linux_x86_64.tar.gz | tar -xz -C ./bin
+	rm ./bin/LICENSE
+	rm ./bin/README.md
+
 clean:
 	rm main
 

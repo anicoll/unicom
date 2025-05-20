@@ -1178,22 +1178,22 @@ var _ interface {
 	ErrorName() string
 } = StreamCommunicationRequestValidationError{}
 
-// Validate checks the field values on SendResponse with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *SendResponse) Validate() error {
+// Validate checks the field values on SendCommunicationResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SendCommunicationResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on SendResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in SendResponseMultiError, or
-// nil if none found.
-func (m *SendResponse) ValidateAll() error {
+// ValidateAll checks the field values on SendCommunicationResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SendCommunicationResponseMultiError, or nil if none found.
+func (m *SendCommunicationResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *SendResponse) validate(all bool) error {
+func (m *SendCommunicationResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1203,18 +1203,19 @@ func (m *SendResponse) validate(all bool) error {
 	// no validation rules for Id
 
 	if len(errors) > 0 {
-		return SendResponseMultiError(errors)
+		return SendCommunicationResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// SendResponseMultiError is an error wrapping multiple validation errors
-// returned by SendResponse.ValidateAll() if the designated constraints aren't met.
-type SendResponseMultiError []error
+// SendCommunicationResponseMultiError is an error wrapping multiple validation
+// errors returned by SendCommunicationResponse.ValidateAll() if the
+// designated constraints aren't met.
+type SendCommunicationResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m SendResponseMultiError) Error() string {
+func (m SendCommunicationResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1223,11 +1224,11 @@ func (m SendResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m SendResponseMultiError) AllErrors() []error { return m }
+func (m SendCommunicationResponseMultiError) AllErrors() []error { return m }
 
-// SendResponseValidationError is the validation error returned by
-// SendResponse.Validate if the designated constraints aren't met.
-type SendResponseValidationError struct {
+// SendCommunicationResponseValidationError is the validation error returned by
+// SendCommunicationResponse.Validate if the designated constraints aren't met.
+type SendCommunicationResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1235,22 +1236,24 @@ type SendResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e SendResponseValidationError) Field() string { return e.field }
+func (e SendCommunicationResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SendResponseValidationError) Reason() string { return e.reason }
+func (e SendCommunicationResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SendResponseValidationError) Cause() error { return e.cause }
+func (e SendCommunicationResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SendResponseValidationError) Key() bool { return e.key }
+func (e SendCommunicationResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SendResponseValidationError) ErrorName() string { return "SendResponseValidationError" }
+func (e SendCommunicationResponseValidationError) ErrorName() string {
+	return "SendCommunicationResponseValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e SendResponseValidationError) Error() string {
+func (e SendCommunicationResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1262,14 +1265,14 @@ func (e SendResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSendResponse.%s: %s%s",
+		"invalid %sSendCommunicationResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SendResponseValidationError{}
+var _ error = SendCommunicationResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -1277,7 +1280,112 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SendResponseValidationError{}
+} = SendCommunicationResponseValidationError{}
+
+// Validate checks the field values on StreamCommunicationResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StreamCommunicationResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StreamCommunicationResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StreamCommunicationResponseMultiError, or nil if none found.
+func (m *StreamCommunicationResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StreamCommunicationResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return StreamCommunicationResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// StreamCommunicationResponseMultiError is an error wrapping multiple
+// validation errors returned by StreamCommunicationResponse.ValidateAll() if
+// the designated constraints aren't met.
+type StreamCommunicationResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StreamCommunicationResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StreamCommunicationResponseMultiError) AllErrors() []error { return m }
+
+// StreamCommunicationResponseValidationError is the validation error returned
+// by StreamCommunicationResponse.Validate if the designated constraints
+// aren't met.
+type StreamCommunicationResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StreamCommunicationResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StreamCommunicationResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StreamCommunicationResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StreamCommunicationResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StreamCommunicationResponseValidationError) ErrorName() string {
+	return "StreamCommunicationResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StreamCommunicationResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStreamCommunicationResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StreamCommunicationResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StreamCommunicationResponseValidationError{}
 
 // Validate checks the field values on GetStatusRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the

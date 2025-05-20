@@ -17,38 +17,34 @@ import (
 type ServiceTestSuite struct {
 	suite.Suite
 	svc       *responsechannel.SQSService
-	sqsClient *mockSqsClient
+	sqsClient *mocksqsClient
 }
 
 func TestServiceTestSuite(t *testing.T) {
 	suite.Run(t, new(ServiceTestSuite))
 }
 
-func (suite *ServiceTestSuite) SetupTest() {
-	suite.sqsClient = &mockSqsClient{}
-	suite.svc = responsechannel.NewSQSService(suite.sqsClient)
+func (s *ServiceTestSuite) SetupTest() {
+	s.sqsClient = newMocksqsClient(s.T())
+	s.svc = responsechannel.NewSQSService(s.sqsClient)
 }
 
-func (suite *ServiceTestSuite) AfterTest() {
-	suite.sqsClient.AssertExpectations(suite.T())
-}
-
-func (suite *ServiceTestSuite) TestService_SendMessage_Success() {
+func (s *ServiceTestSuite) TestService_SendMessage_Success() {
 	ctx := context.Background()
 
 	req := model.ResponseChannelRequest{}
 	err := faker.FakeData(&req)
-	suite.NoError(err)
+	s.NoError(err)
 
 	expectedResponse := sqs.SendMessageOutput{}
 	err = faker.FakeData(&expectedResponse)
-	suite.NoError(err)
+	s.NoError(err)
 
-	suite.sqsClient.On("SendMessage", ctx, mock.Anything, mock.Anything).Return(&expectedResponse, nil)
+	s.sqsClient.EXPECT().SendMessage(ctx, mock.Anything, mock.Anything).Return(&expectedResponse, nil)
 
-	assert := assert.New(suite.T())
+	assert := assert.New(s.T())
 
-	resp, err := suite.svc.Send(ctx, req)
+	resp, err := s.svc.Send(ctx, req)
 
 	assert.Equal(expectedResponse.MessageId, resp)
 	assert.NoError(err)

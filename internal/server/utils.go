@@ -12,6 +12,8 @@ import (
 	"github.com/anicoll/unicom/internal/workflows"
 )
 
+// mapEmailRequestIn maps a protobuf EmailRequest to an internal email.Request structure,
+// including attachments. Returns an error if attachment mapping fails.
 func mapEmailRequestIn(req *pb.EmailRequest) (*email.Request, error) {
 	if req == nil {
 		return nil, nil
@@ -31,6 +33,8 @@ func mapEmailRequestIn(req *pb.EmailRequest) (*email.Request, error) {
 	}, nil
 }
 
+// mapPushNotificationIn maps a protobuf PushRequest to an internal push.Notification structure,
+// including language-specific content and optional subtitle.
 func mapPushNotificationIn(req *pb.PushRequest) *push.Notification {
 	notification := &push.Notification{
 		IdempotencyKey:     req.GetIdempotencyKey(),
@@ -55,6 +59,8 @@ func mapPushNotificationIn(req *pb.PushRequest) *push.Notification {
 	return notification
 }
 
+// mapAttachmentsIn converts a slice of protobuf Attachment objects to internal email.Attachment objects,
+// downloading file data if a URL is provided. Returns an error if any download fails.
 func mapAttachmentsIn(attachments []*pb.Attachment) ([]email.Attachment, error) {
 	resp := make([]email.Attachment, len(attachments))
 
@@ -78,6 +84,8 @@ func mapAttachmentsIn(attachments []*pb.Attachment) ([]email.Attachment, error) 
 	return resp, nil
 }
 
+// mapWorkflowRequestToModel maps a workflow request and its ID to a model.Communication object,
+// setting the communication type and response channels.
 func mapWorkflowRequestToModel(workflowId string, req workflows.Request) *model.Communication {
 	communicationType := model.Email
 	if req.EmailRequest == nil {
@@ -100,7 +108,8 @@ func mapWorkflowRequestToModel(workflowId string, req workflows.Request) *model.
 	return resp
 }
 
-// DownloadFile will download the file and return the data.
+// downloadFile downloads the file from the specified URL and returns its contents as a byte slice.
+// Returns an error if the download fails.
 func downloadFile(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {

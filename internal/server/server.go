@@ -33,6 +33,7 @@ type Server struct {
 
 var _ pb.UnicomServiceServer = (*Server)(nil)
 
+// New creates a new Server instance with the provided logger, temporal client, and database.
 func New(logger *zap.Logger, tc temporalClient, db postgres) *Server {
 	return &Server{
 		tc:     tc,
@@ -41,11 +42,14 @@ func New(logger *zap.Logger, tc temporalClient, db postgres) *Server {
 	}
 }
 
-func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendResponse, error) {
+// SendCommunication handles the gRPC SendCommunication request and delegates to sendCommunication.
+func (s *Server) SendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendCommunicationResponse, error) {
 	return s.sendCommunication(ctx, req)
 }
 
-func (s *Server) sendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendResponse, error) {
+// sendCommunication processes a SendCommunication request, starts the workflow, and returns the response.
+// Handles both async and sync requests, and saves the communication to the database.
+func (s *Server) sendCommunication(ctx context.Context, req *pb.SendCommunicationRequest) (*pb.SendCommunicationResponse, error) {
 	err := s.validateRequest(req)
 	if err != nil {
 		s.logger.Error(err.Error(), zap.Error(err))
@@ -113,11 +117,12 @@ func (s *Server) sendCommunication(ctx context.Context, req *pb.SendCommunicatio
 			return nil, status.Error(codes.Internal, "unable to get request result")
 		}
 	}
-	return &pb.SendResponse{
+	return &pb.SendCommunicationResponse{
 		Id: workflowId,
 	}, nil
 }
 
+// GetStatus handles the gRPC GetStatus request and returns the workflow status for the given ID.
 func (s *Server) GetStatus(ctx context.Context, req *pb.GetStatusRequest) (*pb.GetStatusResponse, error) {
 	workflowStatus, err := s.tc.GetWorkflowStatus(ctx, workflows.StatusRequest{
 		WorkflowId: req.GetId(),
@@ -131,6 +136,8 @@ func (s *Server) GetStatus(ctx context.Context, req *pb.GetStatusRequest) (*pb.G
 	}, nil
 }
 
+// StreamCommunication handles the gRPC streaming endpoint for communication requests.
+// Receives requests from the stream, processes them, and sends back responses.
 func (s *Server) StreamCommunication(stream pb.UnicomService_StreamCommunicationServer) error {
 	ctx := stream.Context()
 	for {
@@ -151,13 +158,17 @@ func (s *Server) StreamCommunication(stream pb.UnicomService_StreamCommunication
 		if err != nil {
 			return err
 		}
-		err = stream.Send(response)
+		err = stream.Send(&pb.StreamCommunicationResponse{
+			Id: response.GetId(),
+		})
 		if err != nil {
 			return err
 		}
 	}
 }
 
+// validateRequest checks that the SendCommunicationRequest contains exactly one notification medium (email or push).
+// Returns an error if the request is invalid.
 func (s *Server) validateRequest(req *pb.SendCommunicationRequest) error {
 	if req.GetEmail() != nil && req.GetPush() != nil {
 		return status.Error(codes.InvalidArgument, "invalid request for multiple notification types, please only send comms for a single medium")

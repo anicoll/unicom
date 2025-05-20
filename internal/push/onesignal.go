@@ -9,6 +9,18 @@ import (
 	"go.uber.org/zap"
 )
 
+// type OneSignalAPI interface {
+// 	CreateNotification(ctx context.Context) OneSignalNotificationCreator
+// }
+
+// type OneSignalNotificationCreator interface {
+// 	Notification(notification onesignal.Notification) OneSignalNotificationExecutor
+// }
+
+// type OneSignalNotificationExecutor interface {
+// 	Execute() (*onesignal.CreateNotificationSuccessResponse, *http.Response, error)
+// }
+
 type Service struct {
 	appId     string
 	authKey   string
@@ -37,6 +49,10 @@ type Notification struct {
 	Content            LanguageContent
 	Heading            LanguageContent
 	SubTitle           *LanguageContent
+}
+
+func (s *Service) SetAPIClient(client *onesignal.DefaultApiService) {
+	s.apiClient = client
 }
 
 func (s *Service) Send(ctx context.Context, args Notification) (*string, error) {
@@ -68,7 +84,10 @@ func (s *Service) Send(ctx context.Context, args Notification) (*string, error) 
 
 	authCtx := context.WithValue(ctx, onesignal.AppAuth, s.authKey)
 
-	resp, _, err := s.apiClient.CreateNotification(authCtx).Notification(notification).Execute()
+	resp, _, err := s.apiClient.
+		CreateNotification(authCtx).
+		Notification(notification).
+		Execute()
 	if err != nil {
 		s.logger.Error("error sending push notification", zap.Error(err))
 		return nil, err

@@ -1,0 +1,22 @@
+all: false
+dir: "{{.InterfaceDir}}"
+filename: mocks_test.go
+force-file-write: true
+formatter: goimports
+log-level: info
+structname: "{{.Mock}}{{.InterfaceName}}"
+pkgname: "{{.SrcPackageName}}_test"
+recursive: true
+require-template-schema-exists: true
+template: testify
+template-schema: "{{.Template}}.schema.json"
+packages:
+  github.com/anicoll/unicom/internal/server:
+    config:
+      all: true
+  github.com/anicoll/unicom/internal/responsechannel:
+    config:
+      all: true
+  github.com/anicoll/unicom/internal/push:
+    config:
+      all: true

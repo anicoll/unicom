@@ -72,7 +72,11 @@ message StreamCommunicationRequest {
   PushRequest push = 3;
 }
 
-message SendResponse {
+message SendCommunicationResponse {
+  string id = 1;
+}
+
+message StreamCommunicationResponse {
   string id = 1;
 }
 
@@ -85,14 +89,14 @@ message GetStatusResponse {
 }
 
 service UnicomService {
-  rpc SendCommunication(SendCommunicationRequest) returns (SendResponse) {
+  rpc SendCommunication(SendCommunicationRequest) returns (SendCommunicationResponse) {
     option (google.api.http) = {
       post: "/unicom/v1/send-communication"
       body: "*"
     };
   }
 
-  rpc StreamCommunication(stream StreamCommunicationRequest) returns (stream SendResponse) {}
+  rpc StreamCommunication(stream StreamCommunicationRequest) returns (stream StreamCommunicationResponse) {}
   rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {
     option (google.api.http) = {get: "/unicom/v1/status/{id}"};
   }

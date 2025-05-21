@@ -22,12 +22,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// / Enum describing the schema/protocol for response channels.
 type ResponseSchema int32
 
 const (
-	ResponseSchema_RESPONSE_SCHEMA_UNSPECIFIED  ResponseSchema = 0
-	ResponseSchema_RESPONSE_SCHEMA_HTTP         ResponseSchema = 1
-	ResponseSchema_RESPONSE_SCHEMA_SQS          ResponseSchema = 2
+	// Default value. Should not be used.
+	ResponseSchema_RESPONSE_SCHEMA_UNSPECIFIED ResponseSchema = 0
+	// HTTP endpoint for responses.
+	ResponseSchema_RESPONSE_SCHEMA_HTTP ResponseSchema = 1
+	// AWS SQS queue for responses.
+	ResponseSchema_RESPONSE_SCHEMA_SQS ResponseSchema = 2
+	// AWS EventBridge for responses.
 	ResponseSchema_RESPONSE_SCHEMA_EVENT_BRIDGE ResponseSchema = 3
 )
 
@@ -74,14 +79,19 @@ func (ResponseSchema) EnumDescriptor() ([]byte, []int) {
 	return file_unicom_api_v1_service_proto_rawDescGZIP(), []int{0}
 }
 
+// / Represents a file attachment for email.
+// / Either `data` or `url` must be provided.
 type Attachment struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name string  `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Data []byte  `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
-	Url  *string `protobuf:"bytes,3,opt,name=url,proto3,oneof" json:"url,omitempty"`
+	// The name of the attachment file.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The raw file data as bytes. Optional if `url` is provided.
+	Data []byte `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	// An optional URL from which to download the attachment.
+	Url *string `protobuf:"bytes,3,opt,name=url,proto3,oneof" json:"url,omitempty"`
 }
 
 func (x *Attachment) Reset() {
@@ -135,13 +145,16 @@ func (x *Attachment) GetUrl() string {
 	return ""
 }
 
+// / Specifies a channel to which responses should be sent.
 type ResponseChannel struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The schema/protocol for the response channel.
 	Schema ResponseSchema `protobuf:"varint,1,opt,name=schema,proto3,enum=unicom.api.v1.ResponseSchema" json:"schema,omitempty"`
-	Url    string         `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	// The URL or endpoint for the response channel.
+	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
 }
 
 func (x *ResponseChannel) Reset() {
@@ -188,13 +201,17 @@ func (x *ResponseChannel) GetUrl() string {
 	return ""
 }
 
+// / Represents an event sent as a response, containing workflow status.
 type ResponseEvent struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	WorkflowId   string  `protobuf:"bytes,1,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
-	Status       string  `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	// The workflow ID associated with this event.
+	WorkflowId string `protobuf:"bytes,1,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
+	// The current status of the workflow (e.g., "SUCCEEDED", "FAILED").
+	Status string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	// An optional error message if the workflow failed.
 	ErrorMessage *string `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3,oneof" json:"error_message,omitempty"`
 }
 
@@ -249,15 +266,21 @@ func (x *ResponseEvent) GetErrorMessage() string {
 	return ""
 }
 
+// / Represents an email request, including recipients, subject, body, and attachments.
 type EmailRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ToAddress   string        `protobuf:"bytes,1,opt,name=to_address,json=toAddress,proto3" json:"to_address,omitempty"`
-	FromAddress string        `protobuf:"bytes,2,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
-	Html        string        `protobuf:"bytes,3,opt,name=html,proto3" json:"html,omitempty"`
-	Subject     string        `protobuf:"bytes,4,opt,name=subject,proto3" json:"subject,omitempty"`
+	// The recipient's email address.
+	ToAddress string `protobuf:"bytes,1,opt,name=to_address,json=toAddress,proto3" json:"to_address,omitempty"`
+	// The sender's email address.
+	FromAddress string `protobuf:"bytes,2,opt,name=from_address,json=fromAddress,proto3" json:"from_address,omitempty"`
+	// The HTML body of the email.
+	Html string `protobuf:"bytes,3,opt,name=html,proto3" json:"html,omitempty"`
+	// The subject of the email.
+	Subject string `protobuf:"bytes,4,opt,name=subject,proto3" json:"subject,omitempty"`
+	// A list of attachments to include in the email.
 	Attachments []*Attachment `protobuf:"bytes,5,rep,name=attachments,proto3" json:"attachments,omitempty"`
 }
 
@@ -326,12 +349,15 @@ func (x *EmailRequest) GetAttachments() []*Attachment {
 	return nil
 }
 
+// / Represents content in multiple languages.
 type LanguageContent struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Arabic  string `protobuf:"bytes,1,opt,name=arabic,proto3" json:"arabic,omitempty"`
+	// The Arabic version of the content.
+	Arabic string `protobuf:"bytes,1,opt,name=arabic,proto3" json:"arabic,omitempty"`
+	// The English version of the content.
 	English string `protobuf:"bytes,2,opt,name=english,proto3" json:"english,omitempty"`
 }
 
@@ -379,17 +405,22 @@ func (x *LanguageContent) GetEnglish() string {
 	return ""
 }
 
+// / Represents a push notification request.
 type PushRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// must be a valid UUID v4
-	IdempotencyKey     string           `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
-	ExternalCustomerId string           `protobuf:"bytes,2,opt,name=external_customer_id,json=externalCustomerId,proto3" json:"external_customer_id,omitempty"`
-	Content            *LanguageContent `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
-	Heading            *LanguageContent `protobuf:"bytes,4,opt,name=heading,proto3" json:"heading,omitempty"`
-	SubTitle           *LanguageContent `protobuf:"bytes,5,opt,name=sub_title,json=subTitle,proto3" json:"sub_title,omitempty"`
+	// A unique idempotency key (must be a valid UUID v4).
+	IdempotencyKey string `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"`
+	// The external customer ID to whom the notification is sent.
+	ExternalCustomerId string `protobuf:"bytes,2,opt,name=external_customer_id,json=externalCustomerId,proto3" json:"external_customer_id,omitempty"`
+	// The main content of the notification in multiple languages.
+	Content *LanguageContent `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	// The heading/title of the notification in multiple languages.
+	Heading *LanguageContent `protobuf:"bytes,4,opt,name=heading,proto3" json:"heading,omitempty"`
+	// An optional subtitle for the notification in multiple languages.
+	SubTitle *LanguageContent `protobuf:"bytes,5,opt,name=sub_title,json=subTitle,proto3" json:"sub_title,omitempty"`
 }
 
 func (x *PushRequest) Reset() {
@@ -457,20 +488,23 @@ func (x *PushRequest) GetSubTitle() *LanguageContent {
 	return nil
 }
 
+// / Request to send a communication (email or push notification).
 type SendCommunicationRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// If true, the request is processed asynchronously.
 	IsAsync bool `protobuf:"varint,1,opt,name=is_async,json=isAsync,proto3" json:"is_async,omitempty"`
-	// any point in time in the future.
-	// if time has past, will send immediately.
-	SendAt           *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=send_at,json=sendAt,proto3" json:"send_at,omitempty"`
-	Domain           string                 `protobuf:"bytes,3,opt,name=domain,proto3" json:"domain,omitempty"`
-	ResponseChannels []*ResponseChannel     `protobuf:"bytes,4,rep,name=response_channels,json=responseChannels,proto3" json:"response_channels,omitempty"`
-	// optional email request
+	// The time at which to send the communication. If in the past, sends immediately.
+	SendAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=send_at,json=sendAt,proto3" json:"send_at,omitempty"`
+	// The domain or context for the communication.
+	Domain string `protobuf:"bytes,3,opt,name=domain,proto3" json:"domain,omitempty"`
+	// Channels to which responses should be sent.
+	ResponseChannels []*ResponseChannel `protobuf:"bytes,4,rep,name=response_channels,json=responseChannels,proto3" json:"response_channels,omitempty"`
+	// Optional email request. Only one of `email` or `push` should be set.
 	Email *EmailRequest `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
-	// optional push request
+	// Optional push notification request. Only one of `email` or `push` should be set.
 	Push *PushRequest `protobuf:"bytes,6,opt,name=push,proto3" json:"push,omitempty"`
 }
 
@@ -546,15 +580,17 @@ func (x *SendCommunicationRequest) GetPush() *PushRequest {
 	return nil
 }
 
+// / Request for streaming communication (used for bidirectional streaming).
 type StreamCommunicationRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The domain or context for the communication.
 	Domain string `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
-	// optional email request
+	// Optional email request.
 	Email *EmailRequest `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
-	// optional push request
+	// Optional push notification request.
 	Push *PushRequest `protobuf:"bytes,3,opt,name=push,proto3" json:"push,omitempty"`
 }
 
@@ -609,11 +645,13 @@ func (x *StreamCommunicationRequest) GetPush() *PushRequest {
 	return nil
 }
 
+// / Response containing the workflow ID for a sent communication.
 type SendCommunicationResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The unique workflow ID assigned to the communication.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
@@ -654,11 +692,13 @@ func (x *SendCommunicationResponse) GetId() string {
 	return ""
 }
 
+// / Response containing the workflow ID for a streamed communication.
 type StreamCommunicationResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The unique workflow ID assigned to the communication.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
@@ -699,11 +739,13 @@ func (x *StreamCommunicationResponse) GetId() string {
 	return ""
 }
 
+// / Request to get the status of a workflow by ID.
 type GetStatusRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The workflow ID to query.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
@@ -744,11 +786,13 @@ func (x *GetStatusRequest) GetId() string {
 	return ""
 }
 
+// / Response containing the status of a workflow.
 type GetStatusResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The current status of the workflow.
 	Status string `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 }
 

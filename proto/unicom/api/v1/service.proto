@@ -5,90 +5,161 @@ package unicom.api.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
+/// Represents a file attachment for email.
+/// Either `data` or `url` must be provided.
 message Attachment {
+  // The name of the attachment file.
   string name = 1;
+
+  // The raw file data as bytes. Optional if `url` is provided.
   bytes data = 2;
+
+  // An optional URL from which to download the attachment.
   optional string url = 3;
 }
 
+/// Enum describing the schema/protocol for response channels.
 enum ResponseSchema {
+  // Default value. Should not be used.
   RESPONSE_SCHEMA_UNSPECIFIED = 0;
+
+  // HTTP endpoint for responses.
   RESPONSE_SCHEMA_HTTP = 1;
+
+  // AWS SQS queue for responses.
   RESPONSE_SCHEMA_SQS = 2;
+
+  // AWS EventBridge for responses.
   RESPONSE_SCHEMA_EVENT_BRIDGE = 3;
 }
 
+/// Specifies a channel to which responses should be sent.
 message ResponseChannel {
+  // The schema/protocol for the response channel.
   ResponseSchema schema = 1;
+
+  // The URL or endpoint for the response channel.
   string url = 2;
 }
 
+/// Represents an event sent as a response, containing workflow status.
 message ResponseEvent {
+  // The workflow ID associated with this event.
   string workflow_id = 1;
+
+  // The current status of the workflow (e.g., "SUCCEEDED", "FAILED").
   string status = 2;
+
+  // An optional error message if the workflow failed.
   optional string error_message = 3;
 }
 
+/// Represents an email request, including recipients, subject, body, and attachments.
 message EmailRequest {
+  // The recipient's email address.
   string to_address = 1;
+
+  // The sender's email address.
   string from_address = 2;
+
+  // The HTML body of the email.
   string html = 3;
+
+  // The subject of the email.
   string subject = 4;
+
+  // A list of attachments to include in the email.
   repeated Attachment attachments = 5;
 }
 
+/// Represents content in multiple languages.
 message LanguageContent {
+  // The Arabic version of the content.
   string arabic = 1;
+
+  // The English version of the content.
   string english = 2;
 }
 
+/// Represents a push notification request.
 message PushRequest {
-  // must be a valid UUID v4
+  // A unique idempotency key (must be a valid UUID v4).
   string idempotency_key = 1;
+
+  // The external customer ID to whom the notification is sent.
   string external_customer_id = 2;
+
+  // The main content of the notification in multiple languages.
   LanguageContent content = 3;
+
+  // The heading/title of the notification in multiple languages.
   LanguageContent heading = 4;
+
+  // An optional subtitle for the notification in multiple languages.
   LanguageContent sub_title = 5;
 }
 
+/// Request to send a communication (email or push notification).
 message SendCommunicationRequest {
+  // If true, the request is processed asynchronously.
   bool is_async = 1;
-  // any point in time in the future.
-  // if time has past, will send immediately.
+
+  // The time at which to send the communication. If in the past, sends immediately.
   google.protobuf.Timestamp send_at = 2;
+
+  // The domain or context for the communication.
   string domain = 3;
+
+  // Channels to which responses should be sent.
   repeated ResponseChannel response_channels = 4;
-  // optional email request
+
+  // Optional email request. Only one of `email` or `push` should be set.
   EmailRequest email = 5;
-  // optional push request
+
+  // Optional push notification request. Only one of `email` or `push` should be set.
   PushRequest push = 6;
 }
 
+/// Request for streaming communication (used for bidirectional streaming).
 message StreamCommunicationRequest {
+  // The domain or context for the communication.
   string domain = 1;
-  // optional email request
+
+  // Optional email request.
   EmailRequest email = 2;
-  // optional push request
+
+  // Optional push notification request.
   PushRequest push = 3;
 }
 
+/// Response containing the workflow ID for a sent communication.
 message SendCommunicationResponse {
+  // The unique workflow ID assigned to the communication.
   string id = 1;
 }
 
+/// Response containing the workflow ID for a streamed communication.
 message StreamCommunicationResponse {
+  // The unique workflow ID assigned to the communication.
   string id = 1;
 }
 
+/// Request to get the status of a workflow by ID.
 message GetStatusRequest {
+  // The workflow ID to query.
   string id = 1;
 }
 
+/// Response containing the status of a workflow.
 message GetStatusResponse {
+  // The current status of the workflow.
   string status = 1;
 }
 
+/// The UnicomService provides APIs for sending communications and querying their status.
 service UnicomService {
+  // Sends a communication (email or push notification).
+  // Returns the workflow ID for tracking.
   rpc SendCommunication(SendCommunicationRequest) returns (SendCommunicationResponse) {
     option (google.api.http) = {
       post: "/unicom/v1/send-communication"
@@ -96,7 +167,10 @@ service UnicomService {
     };
   }
 
+  // Bidirectional streaming endpoint for sending and receiving communications.
   rpc StreamCommunication(stream StreamCommunicationRequest) returns (stream StreamCommunicationResponse) {}
+
+  // Gets the status of a communication workflow by ID.
   rpc GetStatus(GetStatusRequest) returns (GetStatusResponse) {
     option (google.api.http) = {get: "/unicom/v1/status/{id}"};
   }

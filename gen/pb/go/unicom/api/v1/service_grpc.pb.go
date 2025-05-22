@@ -27,9 +27,15 @@ const (
 // UnicomServiceClient is the client API for UnicomService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// / The UnicomService provides APIs for sending communications and querying their status.
 type UnicomServiceClient interface {
+	// Sends a communication (email or push notification).
+	// Returns the workflow ID for tracking.
 	SendCommunication(ctx context.Context, in *SendCommunicationRequest, opts ...grpc.CallOption) (*SendCommunicationResponse, error)
+	// Bidirectional streaming endpoint for sending and receiving communications.
 	StreamCommunication(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCommunicationRequest, StreamCommunicationResponse], error)
+	// Gets the status of a communication workflow by ID.
 	GetStatus(ctx context.Context, in *GetStatusRequest, opts ...grpc.CallOption) (*GetStatusResponse, error)
 }
 
@@ -77,9 +83,15 @@ func (c *unicomServiceClient) GetStatus(ctx context.Context, in *GetStatusReques
 // UnicomServiceServer is the server API for UnicomService service.
 // All implementations should embed UnimplementedUnicomServiceServer
 // for forward compatibility.
+//
+// / The UnicomService provides APIs for sending communications and querying their status.
 type UnicomServiceServer interface {
+	// Sends a communication (email or push notification).
+	// Returns the workflow ID for tracking.
 	SendCommunication(context.Context, *SendCommunicationRequest) (*SendCommunicationResponse, error)
+	// Bidirectional streaming endpoint for sending and receiving communications.
 	StreamCommunication(grpc.BidiStreamingServer[StreamCommunicationRequest, StreamCommunicationResponse]) error
+	// Gets the status of a communication workflow by ID.
 	GetStatus(context.Context, *GetStatusRequest) (*GetStatusResponse, error)
 }
 

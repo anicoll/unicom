@@ -18,6 +18,7 @@
   "paths": {
     "/unicom/v1/send-communication": {
       "post": {
+        "summary": "Sends a communication (email or push notification).\nReturns the workflow ID for tracking.",
         "operationId": "UnicomService_SendCommunication",
         "responses": {
           "200": {
@@ -36,6 +37,7 @@
         "parameters": [
           {
             "name": "body",
+            "description": "/ Request to send a communication (email or push notification).",
             "in": "body",
             "required": true,
             "schema": {
@@ -50,6 +52,7 @@
     },
     "/unicom/v1/status/{id}": {
       "get": {
+        "summary": "Gets the status of a communication workflow by ID.",
         "operationId": "UnicomService_GetStatus",
         "responses": {
           "200": {
@@ -68,6 +71,7 @@
         "parameters": [
           {
             "name": "id",
+            "description": "The workflow ID to query.",
             "in": "path",
             "required": true,
             "type": "string"
@@ -112,91 +116,114 @@
       "type": "object",
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "The name of the attachment file."
         },
         "data": {
           "type": "string",
-          "format": "byte"
+          "format": "byte",
+          "description": "The raw file data as bytes. Optional if `url` is provided."
         },
         "url": {
-          "type": "string"
+          "type": "string",
+          "description": "An optional URL from which to download the attachment."
         }
-      }
+      },
+      "description": "/ Represents a file attachment for email.\n/ Either `data` or `url` must be provided."
     },
     "v1EmailRequest": {
       "type": "object",
       "properties": {
         "toAddress": {
-          "type": "string"
+          "type": "string",
+          "description": "The recipient's email address."
         },
         "fromAddress": {
-          "type": "string"
+          "type": "string",
+          "description": "The sender's email address."
         },
         "html": {
-          "type": "string"
+          "type": "string",
+          "description": "The HTML body of the email."
         },
         "subject": {
-          "type": "string"
+          "type": "string",
+          "description": "The subject of the email."
         },
         "attachments": {
           "type": "array",
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1Attachment"
-          }
+          },
+          "description": "A list of attachments to include in the email."
         }
-      }
+      },
+      "description": "/ Represents an email request, including recipients, subject, body, and attachments."
     },
     "v1GetStatusResponse": {
       "type": "object",
       "properties": {
         "status": {
-          "type": "string"
+          "type": "string",
+          "description": "The current status of the workflow."
         }
-      }
+      },
+      "description": "/ Response containing the status of a workflow."
     },
     "v1LanguageContent": {
       "type": "object",
       "properties": {
         "arabic": {
-          "type": "string"
+          "type": "string",
+          "description": "The Arabic version of the content."
         },
         "english": {
-          "type": "string"
+          "type": "string",
+          "description": "The English version of the content."
         }
-      }
+      },
+      "description": "/ Represents content in multiple languages."
     },
     "v1PushRequest": {
       "type": "object",
       "properties": {
         "idempotencyKey": {
           "type": "string",
-          "title": "must be a valid UUID v4"
+          "description": "A unique idempotency key (must be a valid UUID v4)."
         },
         "externalCustomerId": {
-          "type": "string"
+          "type": "string",
+          "description": "The external customer ID to whom the notification is sent."
         },
         "content": {
-          "$ref": "#/definitions/v1LanguageContent"
+          "$ref": "#/definitions/v1LanguageContent",
+          "description": "The main content of the notification in multiple languages."
         },
         "heading": {
-          "$ref": "#/definitions/v1LanguageContent"
+          "$ref": "#/definitions/v1LanguageContent",
+          "description": "The heading/title of the notification in multiple languages."
         },
         "subTitle": {
-          "$ref": "#/definitions/v1LanguageContent"
+          "$ref": "#/definitions/v1LanguageContent",
+          "description": "An optional subtitle for the notification in multiple languages."
         }
-      }
+      },
+      "description": "/ Represents a push notification request."
     },
     "v1ResponseChannel": {
       "type": "object",
       "properties": {
         "schema": {
-          "$ref": "#/definitions/v1ResponseSchema"
+          "$ref": "#/definitions/v1ResponseSchema",
+          "description": "The schema/protocol for the response channel."
         },
         "url": {
-          "type": "string"
+          "type": "string",
+          "description": "The URL or endpoint for the response channel."
         }
-      }
+      },
+      "description": "/ Specifies a channel to which responses should be sent."
     },
     "v1ResponseSchema": {
       "type": "string",
@@ -206,54 +233,63 @@
         "RESPONSE_SCHEMA_SQS",
         "RESPONSE_SCHEMA_EVENT_BRIDGE"
       ],
-      "default": "RESPONSE_SCHEMA_UNSPECIFIED"
+      "default": "RESPONSE_SCHEMA_UNSPECIFIED",
+      "description": "/ Enum describing the schema/protocol for response channels.\n\n - RESPONSE_SCHEMA_UNSPECIFIED: Default value. Should not be used.\n - RESPONSE_SCHEMA_HTTP: HTTP endpoint for responses.\n - RESPONSE_SCHEMA_SQS: AWS SQS queue for responses.\n - RESPONSE_SCHEMA_EVENT_BRIDGE: AWS EventBridge for responses."
     },
     "v1SendCommunicationRequest": {
       "type": "object",
       "properties": {
         "isAsync": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "If true, the request is processed asynchronously."
         },
         "sendAt": {
           "type": "string",
           "format": "date-time",
-          "description": "any point in time in the future.\nif time has past, will send immediately."
+          "description": "The time at which to send the communication. If in the past, sends immediately."
         },
         "domain": {
-          "type": "string"
+          "type": "string",
+          "description": "The domain or context for the communication."
         },
         "responseChannels": {
           "type": "array",
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1ResponseChannel"
-          }
+          },
+          "description": "Channels to which responses should be sent."
         },
         "email": {
           "$ref": "#/definitions/v1EmailRequest",
-          "title": "optional email request"
+          "description": "Optional email request. Only one of `email` or `push` should be set."
         },
         "push": {
           "$ref": "#/definitions/v1PushRequest",
-          "title": "optional push request"
+          "description": "Optional push notification request. Only one of `email` or `push` should be set."
         }
-      }
+      },
+      "description": "/ Request to send a communication (email or push notification)."
     },
     "v1SendCommunicationResponse": {
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "The unique workflow ID assigned to the communication."
         }
-      }
+      },
+      "description": "/ Response containing the workflow ID for a sent communication."
     },
     "v1StreamCommunicationResponse": {
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "description": "The unique workflow ID assigned to the communication."
         }
-      }
+      },
+      "description": "/ Response containing the workflow ID for a streamed communication."
     }
   }
 }

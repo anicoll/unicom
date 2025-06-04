@@ -44,6 +44,8 @@ github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OneSignal/onesignal-go-api/v2 v2.2.0 h1:cGkwypaBq5DcU10OCJV7w6FTwhWwfAqLoTXLN7k2K6s=
 github.com/OneSignal/onesignal-go-api/v2 v2.2.0/go.mod h1:0fhRvGsAeije0iyY5NlRNraxREFGk9bUqS9MBImXLRg=
+github.com/OneSignal/onesignal-go-api/v2 v2.2.1 h1:a5NsJs7HVnNGc+2LtFCl73EKrP1WNLvHhV2DwsZoAAQ=
+github.com/OneSignal/onesignal-go-api/v2 v2.2.1/go.mod h1:0fhRvGsAeije0iyY5NlRNraxREFGk9bUqS9MBImXLRg=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=

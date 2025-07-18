@@ -28,7 +28,7 @@ require (
 	go.temporal.io/sdk/contrib/tally v0.2.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/sync v0.16.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822
+	google.golang.org/genproto/googleapis/api v0.0.0-20250715232539-7130f93afb79
 	google.golang.org/grpc v1.74.1
 	google.golang.org/protobuf v1.36.6
 	logur.dev/adapter/zap v0.5.0
@@ -123,6 +123,6 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

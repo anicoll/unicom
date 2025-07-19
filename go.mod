@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.36.6
 	github.com/aws/aws-sdk-go-v2/config v1.29.18
 	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.47.1
-	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.8
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.38.9
 	github.com/bxcodec/faker v2.0.1+incompatible
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/google/go-cmp v0.7.0

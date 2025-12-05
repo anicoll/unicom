@@ -508,6 +508,8 @@ github.com/aws/aws-sdk-go-v2/service/sesv2 v1.55.1 h1:ajjlo/WO6WNYhxSSlMAjfbE8be
 github.com/aws/aws-sdk-go-v2/service/sesv2 v1.55.1/go.mod h1:Ba7wqTP7zxhjWIW7IU3l7ctI5nynyVVZ6k3dznWGE3s=
 github.com/aws/aws-sdk-go-v2/service/sesv2 v1.55.2 h1:iWaAuuFBzN2iNRvf2Jm9EdUO19A4UPZLpIFA30H8nT8=
 github.com/aws/aws-sdk-go-v2/service/sesv2 v1.55.2/go.mod h1:WuHtXFKb/pzIaC5pKDbMNkaebvrNCT2DZ61AnRp8woE=
+github.com/aws/aws-sdk-go-v2/service/sesv2 v1.56.0 h1:KHeLe57H7hL1oPb37ipo5R8p2tIwqPlaPE3dwy9O3uY=
+github.com/aws/aws-sdk-go-v2/service/sesv2 v1.56.0/go.mod h1:WuHtXFKb/pzIaC5pKDbMNkaebvrNCT2DZ61AnRp8woE=
 github.com/aws/aws-sdk-go-v2/service/signin v1.0.1 h1:BDgIUYGEo5TkayOWv/oBLPphWwNm/A91AebUjAu5L5g=
 github.com/aws/aws-sdk-go-v2/service/signin v1.0.1/go.mod h1:iS6EPmNeqCsGo+xQmXv0jIMjyYtQfnwg36zl2FwEouk=
 github.com/aws/aws-sdk-go-v2/service/signin v1.0.2 h1:MxMBdKTYBjPQChlJhi4qlEueqB1p1KcbTEa7tD5aqPs=

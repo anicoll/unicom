@@ -30,7 +30,7 @@ require (
 	golang.org/x/sync v0.19.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20251022142026-3a174f9686a8
 	google.golang.org/grpc v1.77.0
-	google.golang.org/protobuf v1.36.10
+	google.golang.org/protobuf v1.36.11
 	logur.dev/adapter/zap v0.5.0
 	logur.dev/logur v0.17.0
 )

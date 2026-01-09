@@ -24,7 +24,7 @@ require (
 	github.com/uber-go/tally/v4 v4.1.17
 	github.com/urfave/cli/v3 v3.6.1
 	github.com/utilitywarehouse/go-operational v0.0.0-20250423084238-c80547bcb12b
-	go.temporal.io/sdk v1.38.0
+	go.temporal.io/sdk v1.39.0
 	go.temporal.io/sdk/contrib/tally v0.2.0
 	go.uber.org/zap v1.27.1
 	golang.org/x/sync v0.19.0
@@ -115,7 +115,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
-	go.temporal.io/api v1.54.0 // indirect
+	go.temporal.io/api v1.59.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect

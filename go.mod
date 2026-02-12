@@ -23,7 +23,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.40.0
 	github.com/uber-go/tally/v4 v4.1.17
 	github.com/urfave/cli/v3 v3.6.2
-	github.com/utilitywarehouse/go-operational v0.0.0-20250423084238-c80547bcb12b
+	github.com/utilitywarehouse/go-operational v0.0.0-20260116102405-7d591782f232
 	go.temporal.io/sdk v1.40.0
 	go.temporal.io/sdk/contrib/tally v0.2.0
 	go.uber.org/zap v1.27.1

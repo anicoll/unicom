@@ -1,6 +1,6 @@
 module github.com/anicoll/unicom
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/OneSignal/onesignal-go-api/v2 v2.2.1
@@ -15,7 +15,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.1.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0
-	github.com/jackc/pgx/v5 v5.8.0
+	github.com/jackc/pgx/v5 v5.9.0
 	github.com/lib/pq v1.11.2
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.23.2

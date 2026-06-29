@@ -6,8 +6,8 @@ require (
 	github.com/OneSignal/onesignal-go-api/v2 v2.2.1
 	github.com/aws/aws-sdk-go-v2 v1.42.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.25
-	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.62.4
-	github.com/aws/aws-sdk-go-v2/service/sqs v1.44.0
+	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.62.5
+	github.com/aws/aws-sdk-go-v2/service/sqs v1.44.1
 	github.com/bxcodec/faker v2.0.1+incompatible
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/google/go-cmp v0.7.0

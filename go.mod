@@ -1,6 +1,6 @@
 module github.com/anicoll/unicom
 
-go 1.25.0
+go 1.25.4
 
 require (
 	github.com/OneSignal/onesignal-go-api/v2 v2.2.1
@@ -24,7 +24,7 @@ require (
 	github.com/uber-go/tally/v4 v4.1.17
 	github.com/urfave/cli/v3 v3.10.1
 	github.com/utilitywarehouse/go-operational v0.0.0-20260116102405-7d591782f232
-	go.temporal.io/sdk v1.45.0
+	go.temporal.io/sdk v1.46.0
 	go.temporal.io/sdk/contrib/tally v0.2.0
 	go.uber.org/zap v1.28.0
 	golang.org/x/sync v0.21.0
@@ -94,6 +94,7 @@ require (
 	github.com/moby/term v0.5.2 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/nexus-rpc/nexus-proto-annotations v0.1.0 // indirect
 	github.com/nexus-rpc/sdk-go v0.6.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
@@ -117,12 +118,12 @@ require (
 	go.opentelemetry.io/otel/metric v1.43.0 // indirect
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.5.0 // indirect
-	go.temporal.io/api v1.62.12 // indirect
+	go.temporal.io/api v1.63.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	golang.org/x/crypto v0.51.0 // indirect
-	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect

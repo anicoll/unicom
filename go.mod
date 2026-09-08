@@ -1,6 +1,6 @@
 module github.com/anicoll/unicom
 
-go 1.25.4
+go 1.26.0
 
 require (
 	github.com/OneSignal/onesignal-go-api/v2 v2.2.1
@@ -27,7 +27,7 @@ require (
 	go.temporal.io/sdk v1.48.0
 	go.temporal.io/sdk/contrib/tally v0.2.0
 	go.uber.org/zap v1.28.0
-	golang.org/x/sync v0.22.0
+	golang.org/x/sync v0.23.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12

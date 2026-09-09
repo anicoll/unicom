@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.72.0
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.51.0
 	github.com/bxcodec/faker v2.0.1+incompatible
-	github.com/golang-migrate/migrate/v4 v4.20.0
+	github.com/golang-migrate/migrate/v4 v4.20.1
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.1.0

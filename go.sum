@@ -2406,6 +2406,8 @@ github.com/nexus-rpc/sdk-go v0.6.0 h1:QRgnP2zTbxEbiyWG/aXH8uSC5LV/Mg1fqb19jb4DBl
 github.com/nexus-rpc/sdk-go v0.6.0/go.mod h1:FHdPfVQwRuJFZFTF0Y2GOAxCrbIBNrcPna9slkGKPYk=
 github.com/nexus-rpc/sdk-go v0.7.0 h1:38NrfY5rLnZAiMMs2ZfCKI/CSDzdfJG+27iAgfA8bUI=
 github.com/nexus-rpc/sdk-go v0.7.0/go.mod h1:FHdPfVQwRuJFZFTF0Y2GOAxCrbIBNrcPna9slkGKPYk=
+github.com/nexus-rpc/sdk-go v0.8.0 h1:xQbsF3KHlCwbIt7fMkAk6gx2iE/NYsg9pHRTZgq95VQ=
+github.com/nexus-rpc/sdk-go v0.8.0/go.mod h1:FHdPfVQwRuJFZFTF0Y2GOAxCrbIBNrcPna9slkGKPYk=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
 github.com/opencontainers/go-digest v1.0.0 h1:apOUWs51W5PlhuyGyz9FCeeBIOUDA/6nW8Oi/yOhh5U=
 github.com/opencontainers/go-digest v1.0.0/go.mod h1:0JzlMkj0TRzQZfJkVvzbP0HBR3IKzErnv2BNG4W4MAM=
@@ -2777,6 +2779,8 @@ go.temporal.io/sdk v1.50.0 h1:voD61vs0hfxXOI+evJ/rMdExDYf+I+YLhoawhwf1LVU=
 go.temporal.io/sdk v1.50.0/go.mod h1:xP0FulN5JJSfisESUP60LlWsrKz2tLSStGjVdk8r5cc=
 go.temporal.io/sdk v1.51.0 h1:RsEghFfg91qWgNaecRgPrms9TA7iXskSzSQO2BwhJRs=
 go.temporal.io/sdk v1.51.0/go.mod h1:Gj2KwnQAlMhPRSX1RoqV3Zez8Y0U+6dCGxn1sg+j9kg=
+go.temporal.io/sdk v1.52.0 h1:JHkgwaVqDQ07nAQ+lIrwXEnTfcr83hFiJQTJ8av/AzY=
+go.temporal.io/sdk v1.52.0/go.mod h1:7Y12GFTIhBPoejTbjudl2+SLKFn8fXcP0dKGwVqmS14=
 go.temporal.io/sdk/contrib/tally v0.2.0 h1:XnTJIQcjOv+WuCJ1u8Ve2nq+s2H4i/fys34MnWDRrOo=
 go.temporal.io/sdk/contrib/tally v0.2.0/go.mod h1:1kpSuCms/tHeJQDPuuKkaBsMqfHnIIRnCtUYlPNXxuE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
